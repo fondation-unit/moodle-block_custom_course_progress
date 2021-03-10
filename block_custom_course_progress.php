@@ -78,6 +78,7 @@ class block_custom_course_progress extends block_base {
 
             $courseobj = $course;
             $courseobj->courseimage = get_course_image($course);
+            $courseobj->courselink = new moodle_url('/course/view.php', array('id' => $course->id));
             $completion = new \completion_info($course);
 
             if ($completion->is_enabled()) {
@@ -100,7 +101,7 @@ class block_custom_course_progress extends block_base {
                     $trackedsection->modcount = 0;
                     $trackedsection->modcompleted = 0;
                     $trackedsection->progress = 0;
-                    $trackedsection->link = new moodle_url('/course/view.php', array('id' => $course->id, 'section' => $section->section));
+                    $trackedsection->sectionlink = new moodle_url('/course/view.php', array('id' => $course->id, 'section' => $section->section));
                     $hasprogress = false;
 
                     foreach ($mods as $module) {
