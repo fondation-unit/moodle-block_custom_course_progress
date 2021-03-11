@@ -1,12 +1,14 @@
-.dashboard-card-img {
+.card-progress {
+    border: 1px solid rgba(0,0,0,.125) !important;
+    border-radius: .25rem;
+    box-shadow: 3px 5px 5px rgba(0,0,0,.07);
+}
+.card-progress .dashboard-card-img {
     height: 7rem;
     background-position: center;
     background-size: cover;
     border-radius: .25rem .25rem 0 0;
 }
-
-.card-progress {
-    border: 1px solid rgba(0,0,0,.125) !important;
-    border-radius: .25rem;
-    box-shadow: 3px 5px 5px rgba(0,0,0,.07);
+.card-progress .card-title a, .card-progress .card-text h6 a {
+    color: #333333 !important;
 }

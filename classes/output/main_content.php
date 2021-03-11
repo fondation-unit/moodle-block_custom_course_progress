@@ -31,13 +31,15 @@ use moodle_url;
 
 class main_content implements renderable, templatable {
 
-    public $courses;
+    public $progresscourses;
+    public $idlecourses;
 
     /**
      * Constructor.
      */
-    public function __construct($courses) {
-        $this->courses = $courses;
+    public function __construct($progresscourses, $idlecourses) {
+        $this->progresscourses = $progresscourses;
+        $this->idlecourses = $idlecourses;
     }
 
     /**
@@ -50,7 +52,8 @@ class main_content implements renderable, templatable {
         $data = new stdClass();
 
         $data = array(
-            'courses' => $this->courses,
+            'progresscourses' => $this->progresscourses,
+            'idlecourses' => $this->idlecourses,
             'pluginbaseurl' => (new moodle_url('/blocks/custom_course_progress'))->out(false),
         );
 

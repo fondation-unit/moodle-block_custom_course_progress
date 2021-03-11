@@ -69,7 +69,8 @@ class block_custom_course_progress extends block_base {
         $this->content->text = '';
 
         $courses = enrol_get_all_users_courses($USER->id, true);
-        $usercourses = array();
+        $progresscourses = array();
+        $idlecourses = array();
 
         foreach ($courses as $course) {            
             if (!$course) {
@@ -128,12 +129,19 @@ class block_custom_course_progress extends block_base {
                 }
 
                 if ($hascourseprogress) {
-                    $usercourses[] = $courseobj;
+                    $progresscourses[] = $courseobj;
+                } else {
+                    $idlecourses[] = $courseobj;
                 }
+            } else {
+                $idlecourses[] = $courseobj;
             }
         }
 
-        $content = course_get_completion_generate_content($usercourses);
+        usort($progresscourses, "cmp");
+        usort($idlecourses, "cmp");
+
+        $content = course_get_completion_generate_content($progresscourses, $idlecourses);
         $renderer = $this->page->get_renderer('block_custom_course_progress');
         $this->content->text = $renderer->render($content);
 

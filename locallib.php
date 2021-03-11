@@ -32,8 +32,8 @@ require_once("$CFG->libdir/filelib.php");
  *
  * @return \block_custom_course_progress\output\main_content custom_course_progress main_content renderer
  */
-function course_get_completion_generate_content($courses) {
-    return new \block_custom_course_progress\output\main_content($courses);
+function course_get_completion_generate_content($progresscourses, $idlecourses = array()) {
+    return new \block_custom_course_progress\output\main_content($progresscourses, $idlecourses);
 }
 
 function get_course_image($course) {
@@ -49,4 +49,8 @@ function get_course_image($course) {
     }
 
     return $url;
+}
+
+function cmp($a, $b) {
+    return strcmp($a->fullname, $b->fullname);
 }
