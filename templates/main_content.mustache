@@ -18,80 +18,13 @@
   @copyright  &copy; 2021 Pierre Duverneix.
   @author     Pierre Duverneix
   @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-
-  Example context (json):
-  {
-  }
 }}
 <div class="custom_course_progress_body">
-    <h4 class="mt-3 mb-3 text-center">En progression :</h4>
-    <div class="row">
-        {{#progresscourses}}
-            <div class="col-md-4 col-sm-6">
-                <div class="card card-progress mt-3 mb-3">
-                    {{#courseimage}}
-                        <div class="card-img dashboard-card-img" style="background-image:url({{{courseimage}}})" alt="Image {{{fullname}}}"></div>
-                    {{/courseimage}}
-                    <div class="card-body">
-                        <h5 class="card-title bold mt-0 mb-4">
-                            <a href="{{{courselink}}}">{{{fullname}}}</a>
-                        </h5>
-                        <div class="card-text">
-                            {{#sections}}
-                                <div class="mt-2">
-                                    <h6><a href="{{{sectionlink}}}">{{{name}}}</a></h6>     
-                                    <div class="progress mb-1" style="height:7px;">
-                                        <div class="progress-bar" 
-                                            role="progressbar" 
-                                            style="width: {{{progress}}}%;height:7px;" 
-                                            aria-valuenow="{{{progress}}}" 
-                                            aria-valuemin="0" 
-                                            aria-valuemax="100">
-                                        </div>
-                                    </div>
-                                    <div class="d-flex">
-                                        <div class="small text-muted">Activités achevées : {{{modcompleted}}}/{{{modcount}}}</div>
-                                        <div class="small ml-auto text-muted">{{{progress}}}%</div>
-                                    </div>
-                                </div>
-                            {{/sections}}
-                        </div>
-                    </div>
-                    <div class="card-footer text-muted">
-                        <h6>Avancement du cours</h6>
-                        <div class="progress mb-2">
-                            <div class="progress-bar bg-primary" 
-                                role="progressbar" 
-                                style="width: {{{courseprogress}}}%;" 
-                                aria-valuenow="{{{courseprogress}}}" 
-                                aria-valuemin="0" 
-                                aria-valuemax="100">
-                                {{{courseprogress}}}%
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {{/progresscourses}}
-    </div>
-    <h4 class="mt-5 mb-3 text-center">Autres cours :</h4>
-    <div class="row">
-        {{#idlecourses}}
-            <div class="col-md-4 col-sm-6">
-                <div class="card card-progress mt-3 mb-3">
-                    {{#courseimage}}
-                        <div class="card-img dashboard-card-img" style="background-image:url({{{courseimage}}})" alt="Image {{{fullname}}}"></div>
-                    {{/courseimage}}
-                    <div class="card-body">
-                        <h5 class="card-title bold mt-0">
-                            <a href="{{{courselink}}}">{{{fullname}}}</a>
-                        </h5>
-                    </div>
-                    <div class="card-footer">
-                        <h6><a href="{{{courselink}}}">Accéder au cours</a></h6>
-                    </div>
-                </div>
-            </div>
-        {{/idlecourses}}
-    </div>
+    {{#export}}
+        <header class="pull-right">
+            <a href="{{{ config.wwwroot }}}/blocks/custom_course_progress/export.php" class="btn btn-primary pt-1 pb-1"><i class="fa fa-download"></i></a>
+        </header>
+    {{/export}}
+    {{> block_custom_course_progress/progress_courses }}
+    {{> block_custom_course_progress/idle_courses }}
 </div>

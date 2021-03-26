@@ -31,19 +31,19 @@ use renderer_base;
 use stdClass;
 use moodle_url;
 
-class main_content implements renderable, templatable {
+class export_content implements renderable, templatable {
 
+    public $username;
     public $progresscourses;
     public $idlecourses;
-    public $context;
 
     /**
      * Constructor.
      */
-    public function __construct($progresscourses, $idlecourses, $context) {
+    public function __construct($username, $progresscourses, $idlecourses) {
+        $this->username = $username;
         $this->progresscourses = $progresscourses;
         $this->idlecourses = $idlecourses;
-        $this->context = $context;
     }
 
     /**
@@ -53,22 +53,12 @@ class main_content implements renderable, templatable {
      * @return stdClass
      */
     public function export_for_template(renderer_base $output) {
-        $data = new stdClass();
-        $export = false;
-
-        if ($this->progresscourses != null) {
-            $export = true;
-        }
-
-        $noitemsimgurl = $output->image_url('items', 'block_recentlyaccesseditems')->out();
-
-        $data = array(
+        $data = new stdClass(array(
+            'username' => $this->username,
             'progresscourses' => $this->progresscourses,
             'idlecourses' => $this->idlecourses,
-            'export' => $export,
-            'noitemsimgurl' => $noitemsimgurl,
             'pluginbaseurl' => (new moodle_url('/blocks/custom_course_progress'))->out(false),
-        );
+        ));
 
         return $data;
     }

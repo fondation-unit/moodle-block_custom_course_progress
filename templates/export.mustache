@@ -1,0 +1,85 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+  custom_course_progress block.
+  @package    block
+  @subpackage custom_course_progress
+  @copyright  &copy; 2021 Pierre Duverneix.
+  @author     Pierre Duverneix
+  @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+}}
+<div class="custom_course_progress_export">
+    <table class="custom_course_progress-table" cellspacing="0" cellpadding="0">
+        {{#progresscourses}}
+            <tr style="page-break-inside:avoid;">
+                <td>
+                    <table>
+                        <tr>
+                            <th>
+                                <h4 class="custom-progress-course">{{{fullname}}}</h4>
+                            </th>
+                        </tr>
+                        <tr><td></td></tr>
+                    </table>
+                    <table style="background-color:#cfdae4;" width="100%">
+                        <tr>
+                            <td width="{{{courseprogress}}}%" class="custom-progress-bar"></td>
+                            <td width="{{{courseprogressdiff}}}%"></td>
+                        </tr>
+                    </table>
+                    <table>
+                        <tr>
+                            <td width="100%">
+                                <br><br><strong>A réalisé {{{courseprogress}}}% de la totalité du cours</strong><br><br>
+                            </td>
+                        </tr>
+                    </table>
+                    <table>
+                        {{#sections}}
+                            <tr><td></td></tr>
+                            <tr>
+                                <td><strong>{{{name}}}</strong> ({{{progress}}}%)</td>
+                            </tr>
+                            <tr><td></td></tr>
+                            <tr>
+                                <td>Activités achevées : {{{modcompleted}}}/{{{modcount}}}</td>
+                            </tr>
+                            <tr><td><br></td></tr>
+                            {{#hasgrades}}
+                                <tr>
+                                    <td>Détail :
+                                        <ul class="no-mg">
+                                        {{#modules}}
+                                            {{#gradeitems}}
+                                                <li>{{{name}}} : {{{finalgrade}}}/{{{grademax}}}</li>
+                                            {{/gradeitems}}
+                                        {{/modules}}
+                                        </ul>
+                                    </td>
+                                </tr>
+                            {{/hasgrades}}
+                            <tr><td><br></td></tr>
+                        {{/sections}}
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td class="custom-sep"></td>
+            </tr>
+        {{/progresscourses}}
+        <tr><td></td></tr>
+        <tr><td></td></tr>
+        <tr><td></td></tr>
+    </table>
+</div>

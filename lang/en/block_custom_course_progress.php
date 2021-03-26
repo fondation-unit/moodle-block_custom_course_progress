@@ -26,3 +26,4 @@ $string['custom_course_progress:addinstance'] = 'Add a new block Custom Course P
 $string['custom_course_progress:editadvance'] = 'Edit block Custom Course Progress';
 $string['custom_course_progress:view'] = 'View block Custom Course Progress';
 $string['custom_course_progress:myaddinstance'] = 'Add a new block Custom Course Progress';
+$string['export_title'] = 'Progress report';

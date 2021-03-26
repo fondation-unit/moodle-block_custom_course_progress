@@ -26,3 +26,4 @@ $string['custom_course_progress:addinstance'] = 'Ajouter un bloc Avancement des 
 $string['custom_course_progress:editadvance'] = 'Editer le bloc Avancement des cours';
 $string['custom_course_progress:view'] = 'Voir le bloc Avancement des cours';
 $string['custom_course_progress:myaddinstance'] = 'Ajouter un bloc Avancement des cours';
+$string['export_title'] = 'Rapport de progression';

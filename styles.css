@@ -12,3 +12,54 @@
 .card-progress .card-title a, .card-progress .card-text h6 a {
     color: #333333 !important;
 }
+.custom_course_progress_export h3 {
+    margin-bottom: 50px;
+    padding-bottom: 0px;
+}
+.custom_course_progress-table p { 
+    font-size: 10px;
+}
+.custom_course_progress-table tr td table .progress {
+    background-color: #F4F4F4;
+}
+.custom-progress-course {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+.custom-sep {
+    height: 1px;
+    width: 200px;
+    border-bottom: 1px solid #F4F4F4;
+}
+.custom-progress-bar {
+    height: 4px;
+    overflow: hidden;
+    background-color: #1177d1;
+    border-radius: 4px;
+    font-size: 9px;
+}
+.custom_course_progress-table tr td {
+    width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.custom_course_progress-table tr td p {
+    padding-top: 0;
+    margin-top: 0;
+}
+.hr {
+    height: 1px;
+    background-color: red;
+    border: none;
+}
+.no-mg {
+    margin-top: 0px;
+    padding-left: 0px;
+}
+.no-mg li {
+    margin-top: 0px;
+    padding-left: 0px;
+}
+.card-progress .progress-bar.bg-primary {
+    background-color: #1177d1 !important;
+}

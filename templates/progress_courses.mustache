@@ -1,0 +1,106 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+  custom_course_progress block.
+  @package    block
+  @subpackage custom_course_progress
+  @copyright  &copy; 2021 Pierre Duverneix.
+  @author     Pierre Duverneix
+  @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+}}
+<div class="container-fluid p-0">
+    <h4 class="mt-3 mb-3 text-center">En progression :</h4>
+    <div class="row">
+        {{#progresscourses}}
+            <div class="col-md-4 col-sm-6">
+                <div class="card card-progress mt-3 mb-3">
+                    {{#courseimage}}
+                        <div class="card-img dashboard-card-img" style="background-image:url({{{courseimage}}})" alt="Image {{{fullname}}}"></div>
+                    {{/courseimage}}
+                    <div class="card-body">
+                        <h5 class="card-title bold mt-0 mb-3">
+                            <a href="{{{courselink}}}">{{{fullname}}}</a>
+                        </h5>
+                    
+                        <h6>A réalisé {{{courseprogress}}}% de la totalité du cours</h6>
+                        <div class="progress mb-0">
+                            <div class="progress-bar bg-primary" 
+                                role="progressbar" 
+                                style="width: {{{courseprogress}}}%;" 
+                                aria-valuenow="{{{courseprogress}}}" 
+                                aria-valuemin="0" 
+                                aria-valuemax="100">
+                                {{{courseprogress}}}%
+                            </div>
+                        </div>
+                        <div class="card-text mt-4">
+                            {{#sections}}
+                                <div class="mt-2">
+                                    <h6><a href="{{{sectionlink}}}">{{{name}}}</a></h6>     
+                                    <div class="progress mb-1" style="height:7px;">
+                                        <div class="progress-bar" 
+                                            role="progressbar" 
+                                            style="width: {{{progress}}}%;height:7px;" 
+                                            aria-valuenow="{{{progress}}}" 
+                                            aria-valuemin="0" 
+                                            aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    {{#hasgrades}}
+                                        <div class="d-flex">
+                                            <a class="small pr-1" 
+                                                href=""
+                                                data-toggle="collapse" 
+                                                data-target="#collapse-{{{id}}}" 
+                                                aria-expanded="false" 
+                                                aria-controls="collapseExample">
+                                                <i class="fa fa-chevron-right"></i> <span class="text-muted">Activités achevées : {{{modcompleted}}}/{{{modcount}}}</span>
+                                            </a>
+                                            <div class="small ml-auto text-muted">{{{progress}}}%</div>
+                                        </div>
+                                        <div class="collapse" id="collapse-{{{id}}}">
+                                            {{#modules}}
+                                                {{#gradeitems}}
+                                                    <div class="d-flex">
+                                                        <div class="small">{{{name}}}</div>
+                                                        <div class="small ml-auto">{{{finalgrade}}}<span class="small text-muted"> / {{{grademax}}}</span></div>
+                                                    </div>
+                                                {{/gradeitems}}
+                                            {{/modules}}
+                                        </div>
+                                    {{/hasgrades}}
+                                    {{^hasgrades}}
+                                        <div class="d-flex">
+                                            <div class="small text-muted">Activités achevées : {{{modcompleted}}}/{{{modcount}}}</div>
+                                            <div class="small ml-auto text-muted">{{{progress}}}%</div>
+                                        </div>
+                                    {{/hasgrades}}
+                                </div>
+                            {{/sections}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {{/progresscourses}}
+        {{^progresscourses}}
+            <div class="text-center" data-region="empty-message">
+                <img class="empty-placeholder-image-lg"
+                    src="{{noitemsimgurl}}"
+                    alt="{{#str}} noitems, block_recentlyaccesseditems {{/str}}"
+                    role="presentation">
+                <p class="text-muted mt-3 mb-0">{{#str}} noitems, block_recentlyaccesseditems {{/str}}</p>
+            </div>
+        {{/progresscourses}}
+    </div>
+</div>

@@ -16,6 +16,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use block_custom_course_progress\custom_course_progress_lib;
+
 /**
  * custom_course_progress block
  *
@@ -25,7 +27,6 @@ defined('MOODLE_INTERNAL') || die();
  */
 
 require_once("$CFG->dirroot/config.php");
-require_once("$CFG->dirroot/course/lib.php");
 require_once("$CFG->dirroot/blocks/custom_course_progress/locallib.php");
 
 class block_custom_course_progress extends block_base {
@@ -65,84 +66,14 @@ class block_custom_course_progress extends block_base {
             return $this->content;
         }
 
+        $context = context_system::instance();
+        $lib = new custom_course_progress_lib($context);
+
         $this->content = new stdClass();
-        $this->content->text = '';
-
-        $courses = enrol_get_all_users_courses($USER->id, true);
-        $progresscourses = array();
-        $idlecourses = array();
-
-        foreach ($courses as $course) {            
-            if (!$course) {
-                print_error('invalidcourseid');
-            }
-
-            $courseobj = $course;
-            $courseobj->courseimage = get_course_image($course);
-            $courseobj->courselink = new moodle_url('/course/view.php', array('id' => $course->id));
-            $completion = new \completion_info($course);
-
-            if ($completion->is_enabled()) {
-                $format = \course_get_format($course->id);
-                $modinfo = \get_fast_modinfo($course->id);
-                $mods = $modinfo->get_cms();
-                $count = count($mods);
-                if (!$count) {
-                    return null;
-                }
-                $completed = 0;
-                $hascourseprogress = false;
-                $progress = \core_completion\progress::get_course_progress_percentage($course);
-
-                foreach ($modinfo->get_section_info_all() as $section) {
-                    $sectionname = $format->get_section_name($section);
-                    $trackedsection = $section;
-                    $trackedsection->name = $sectionname;
-                    $trackedsection->modules = array();
-                    $trackedsection->modcount = 0;
-                    $trackedsection->modcompleted = 0;
-                    $trackedsection->progress = 0;
-                    $trackedsection->sectionlink = new moodle_url('/course/view.php', array('id' => $course->id, 'section' => $section->section));
-                    $hasprogress = false;
-
-                    foreach ($mods as $module) {
-                        if ($module->available == 1 && $module->section == $section->id) {
-                            $data = $completion->get_data($module, true, $USER->id);
-                            $completed += $data->completionstate == COMPLETION_INCOMPLETE ? 0 : 1;
-                            // Count the activity with completion
-                            if ($module->completion) {
-                                $trackedsection->modcount = $trackedsection->modcount + 1;
-                            }
-                            if ($data->completionstate > 0) {
-                                $hasprogress = true;
-                                $hascourseprogress = true;
-                                $trackedsection->modules[] = $module;
-                                $trackedsection->modcompleted = $trackedsection->modcompleted + 1;
-                            }
-                        }
-                    }
-                    if ($hasprogress) {
-                        $trackedsection->progress = round($trackedsection->modcompleted / $trackedsection->modcount * 100, 1);
-                        $courseobj->sections[] = $trackedsection;
-                        $courseobj->courseprogress = round($progress, 1);
-                    }
-                }
-
-                if ($hascourseprogress) {
-                    $progresscourses[] = $courseobj;
-                } else {
-                    $idlecourses[] = $courseobj;
-                }
-            } else {
-                $idlecourses[] = $courseobj;
-            }
-        }
-
-        usort($progresscourses, "cmp");
-        usort($idlecourses, "cmp");
-
-        $content = course_get_completion_generate_content($progresscourses, $idlecourses);
+        $lib->prepare_content($USER->id);
+        $content = $lib->generate_content();
         $renderer = $this->page->get_renderer('block_custom_course_progress');
+        
         $this->content->text = $renderer->render($content);
 
         return $this->content;
@@ -151,7 +82,8 @@ class block_custom_course_progress extends block_base {
     public function applicable_formats() {
         return array(
             'all' => false,
-            'my' => true
+            'my' => true,
+            'user' => true
         );
     }
 }
