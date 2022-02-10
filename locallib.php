@@ -215,7 +215,7 @@ class custom_course_progress_lib
         error_reporting($olddebug);
     }
 
-    public function make_export($userid, $filename, $logo)
+    public function make_export($userid, $filename)
     {
         global $CFG, $DB, $OUTPUT;
 
@@ -270,7 +270,10 @@ class custom_course_progress_lib
             $x = 75;
             $y = 130;
 
-            $pdf->Image('@' . $logo, $x, $y, $w, $h, 'PNG', '', '', false, 300, '', false, false, 0, 'C', false, false);
+            $logo = $this->getReportlogo();
+            if ($logo) {
+                $pdf->Image('@' . $logo, $x, $y, $w, $h, 'JPG', '', '', false, 300, '', false, false, 0, 'C', false, false);
+            }
 
             $pdf->setPrintHeader(true);
             $pdf->AddPage();

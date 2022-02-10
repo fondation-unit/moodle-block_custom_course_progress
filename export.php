@@ -52,11 +52,12 @@ $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo[
 // Read contents
 if ($file) {
     $reportlogo = $file->get_content();
+    $lib->setReportlogo($reportlogo);
 } else {
     // file doesn't exist - do something
 }
 
-$url = $lib->make_export($USER->id, 'export_' . $USER->id . '.pdf', $reportlogo);
+$url = $lib->make_export($USER->id, 'export_' . $USER->id . '.pdf');
 
 if (isset($url)) {
     redirect($url);
