@@ -42,33 +42,64 @@ class custom_course_progress_lib
     private $reportext;
 
     /**
-     * Constructor.
+     * __construct
+     *
+     * @param  mixed $context
+     * @return void
      */
     public function __construct($context)
     {
         $this->context = $context;
     }
 
+    /**
+     * setReportlogo
+     *
+     * @param  mixed $reportlogo
+     * @return void
+     */
     public function setReportlogo($reportlogo)
     {
         $this->reportlogo = $reportlogo;
     }
 
+    /**
+     * getReportlogo
+     *
+     * @return void
+     */
     public function getReportlogo()
     {
         return $this->reportlogo;
     }
 
+    /**
+     * setReportext
+     *
+     * @param  mixed $reportext
+     * @return void
+     */
     public function setReportext($reportext)
     {
         $this->reportext = $reportext;
     }
 
+    /**
+     * getReportext
+     *
+     * @return void
+     */
     public function getReportext()
     {
         return $this->reportext;
     }
 
+    /**
+     * prepare_content
+     *
+     * @param  mixed $userid
+     * @return void
+     */
     public function prepare_content($userid)
     {
         $courses = enrol_get_all_users_courses($userid, true);
@@ -183,11 +214,24 @@ class custom_course_progress_lib
         return new \block_custom_course_progress\output\main_content($this->progresscourses, $this->idlecourses, $this->context);
     }
 
+    /**
+     * cmp
+     *
+     * @param  mixed $a
+     * @param  mixed $b
+     * @return void
+     */
     public static function cmp($a, $b)
     {
         return strcmp($a->fullname, $b->fullname);
     }
 
+    /**
+     * retrieves the course image
+     *
+     * @param  mixed $course
+     * @return void
+     */
     public static function get_course_image($course)
     {
         global $CFG;
@@ -206,6 +250,7 @@ class custom_course_progress_lib
 
     /**
      * Get a hash that will be unique and can be used in a path name.
+     *
      * @param int|\assign $assignment
      * @param int $userid
      * @param int $attemptnumber (-1 means latest attempt)
@@ -216,7 +261,8 @@ class custom_course_progress_lib
     }
 
     /**
-     * Save the completed PDF to the given file
+     * Save the completed PDF to the given file.
+     *
      * @param string $filename the filename for the PDF (including the full path)
      */
     private static function save_pdf($pdf, $filename)
@@ -226,6 +272,13 @@ class custom_course_progress_lib
         error_reporting($olddebug);
     }
 
+    /**
+     * make_export
+     *
+     * @param  mixed $userid
+     * @param  mixed $filename
+     * @return void
+     */
     public function make_export($userid, $filename)
     {
         global $CFG, $DB, $OUTPUT;
@@ -234,6 +287,7 @@ class custom_course_progress_lib
 
         $tmpdir = \make_temp_directory('block_custom_course_progress/export/' . self::hash($this->context->id, $userid));
         $combined = $tmpdir . '/' . $filename;
+
         $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
         $username = fullname($user);
         $courses = enrol_get_all_users_courses($userid, true);
@@ -348,6 +402,14 @@ class custom_course_progress_lib
         }
     }
 
+    /**
+     * Save the generated pdf file in a temporary directory.
+     *
+     * @param  mixed $contextid
+     * @param  mixed $filename
+     * @param  mixed $tmpdir
+     * @return void
+     */
     private function savePdfFile($contextid, $filename, $tmpdir)
     {
         $fs = get_file_storage();
@@ -373,6 +435,15 @@ class custom_course_progress_lib
         return moodle_url::make_file_url('/pluginfile.php', $path);
     }
 
+    /**
+     * get_gradeitems
+     *
+     * @param  mixed $userid
+     * @param  mixed $courseid
+     * @param  mixed $moduleinstance
+     * @param  mixed $modname
+     * @return void
+     */
     private function get_gradeitems($userid, $courseid, $moduleinstance, $modname)
     {
         global $DB;
@@ -399,6 +470,13 @@ class custom_course_progress_lib
         return $DB->get_record_sql($sql, array($userid, $courseid, $moduleinstance, $modname));
     }
 
+    /**
+     * get_first_use_date
+     *
+     * @param  mixed $userid
+     * @param  mixed $courses
+     * @return void
+     */
     private function get_first_use_date($userid, $courses)
     {
         global $DB;
