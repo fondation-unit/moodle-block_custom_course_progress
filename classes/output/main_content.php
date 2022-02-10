@@ -21,17 +21,19 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace block_custom_course_progress\output;
+
 defined('MOODLE_INTERNAL') || die();
 
-require_once("$CFG->dirroot/blocks/custom_course_progress/locallib.php");
+require_once "$CFG->dirroot/blocks/custom_course_progress/locallib.php";
 
+use moodle_url;
 use renderable;
-use templatable;
 use renderer_base;
 use stdClass;
-use moodle_url;
+use templatable;
 
-class main_content implements renderable, templatable {
+class main_content implements renderable, templatable
+{
 
     public $progresscourses;
     public $idlecourses;
@@ -40,7 +42,8 @@ class main_content implements renderable, templatable {
     /**
      * Constructor.
      */
-    public function __construct($progresscourses, $idlecourses, $context) {
+    public function __construct($progresscourses, $idlecourses, $context)
+    {
         $this->progresscourses = $progresscourses;
         $this->idlecourses = $idlecourses;
         $this->context = $context;
@@ -52,7 +55,8 @@ class main_content implements renderable, templatable {
      * @param renderer_base $output
      * @return stdClass
      */
-    public function export_for_template(renderer_base $output) {
+    public function export_for_template(renderer_base $output)
+    {
         $data = new stdClass();
         $export = false;
 
@@ -61,6 +65,11 @@ class main_content implements renderable, templatable {
         }
 
         $noitemsimgurl = $output->image_url('items', 'block_recentlyaccesseditems')->out();
+
+        // echo "<pre>";
+        // print_r($this->progresscourses[0]->courseprogress);
+        // print_r($this->progresscourses[0]->sections[0]->progress);
+        // echo "</pre>";
 
         $data = array(
             'progresscourses' => $this->progresscourses,

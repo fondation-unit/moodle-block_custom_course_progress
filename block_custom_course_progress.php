@@ -26,30 +26,36 @@ use block_custom_course_progress\custom_course_progress_lib;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once("$CFG->dirroot/config.php");
-require_once("$CFG->dirroot/blocks/custom_course_progress/locallib.php");
+require_once "$CFG->dirroot/config.php";
+require_once "$CFG->dirroot/blocks/custom_course_progress/locallib.php";
 
-class block_custom_course_progress extends block_base {
-    public function init() {
+class block_custom_course_progress extends block_base
+{
+    public function init()
+    {
         global $COURSE;
         $this->blockname = get_class($this);
         $this->title = get_string('pluginname', 'block_custom_course_progress');
         $this->courseid = $COURSE->id;
     }
 
-    public function instance_allow_multiple() {
+    public function instance_allow_multiple()
+    {
         return false;
     }
 
-    public function has_config() {
+    public function has_config()
+    {
         return true;
     }
 
-    public function instance_allow_config() {
+    public function instance_allow_config()
+    {
         return true;
     }
 
-    public function specialization() {
+    public function specialization()
+    {
         if (isset($this->config)) {
             if (empty($this->config->title)) {
                 $this->title = get_string('defaulttitle', 'block_custom_course_progress');
@@ -59,7 +65,8 @@ class block_custom_course_progress extends block_base {
         }
     }
 
-    public function get_content() {
+    public function get_content()
+    {
         global $USER;
 
         if ($this->content !== null) {
@@ -73,17 +80,18 @@ class block_custom_course_progress extends block_base {
         $lib->prepare_content($USER->id);
         $content = $lib->generate_content();
         $renderer = $this->page->get_renderer('block_custom_course_progress');
-        
+
         $this->content->text = $renderer->render($content);
 
         return $this->content;
     }
 
-    public function applicable_formats() {
+    public function applicable_formats()
+    {
         return array(
             'all' => false,
             'my' => true,
-            'user' => true
+            'user' => true,
         );
     }
 }

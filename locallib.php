@@ -249,47 +249,19 @@ class custom_course_progress_lib
             $pdf->AddPage();
             $pdf->setJPEGQuality(100);
 
-            $logos = array(
-                $OUTPUT->image_url('logo-disp', 'block_custom_course_progress'),
-                $OUTPUT->image_url('logo-unit', 'block_custom_course_progress'),
-                $OUTPUT->image_url('logo-sonate', 'block_custom_course_progress'),
-                $OUTPUT->image_url('logo-uga', 'block_custom_course_progress'),
-                $OUTPUT->image_url('logo-upr', 'block_custom_course_progress'),
-            );
+            $logos = $OUTPUT->image_url('logo-sonate', 'block_custom_course_progress');
 
             $x = 15;
             $y = 20;
             $w = 80;
             $h = 40;
-            $pdf->Rect($x, $y, $w, $h, 'F', array(), array(255, 255, 255));
-            $imgdata = file_get_contents($logos[0]);
-            $pdf->Image('@' . $imgdata, $x, $y, $w, $h, 'JPG', '', '', false, 300, '', false, false, 0, 'L', false, false);
-
-            $w = 60;
-            $x = 135;
-            $pdf->Rect($x, $y, $w, $h, 'F', array(), array(255, 255, 255));
-            $imgdata = file_get_contents($logos[1]);
-            $pdf->Image('@' . $imgdata, $x, $y, $w, $h, 'JPG', '', '', false, 300, '', false, false, 0, 'L', false, false);
 
             $pdf->SetXY(15, 145);
-            $pdf->writeHTMLCell(0, 0, 15, 100, '<h1>Rapport</h1><h1>' . $username . '</h1>', 0, 0, false, true, 'C', true);
+            $pdf->writeHTMLCell(0, 0, 15, 100, '<h1>' . get_config('block_custom_course_progress', 'report_name') . '</h1><h1>' . $username . '</h1>', 0, 0, false, true, 'C', true);
             $x = 75;
             $y = 130;
-            $imgdata = file_get_contents($logos[2]);
+            $imgdata = file_get_contents($logos);
             $pdf->Image('@' . $imgdata, $x, $y, $w, $h, 'JPG', '', '', false, 300, '', false, false, 0, 'C', false, false);
-
-            $x = 15;
-            $y = 235;
-            $w = 45;
-            $pdf->Rect($x, $y, $w, $h, 'F', array(), array(255, 255, 255));
-            $imgdata = file_get_contents($logos[3]);
-            $pdf->Image('@' . $imgdata, $x, $y, $w, $h, 'JPG', '', '', false, 300, '', false, false, 0, 'L', false, false);
-
-            $x = 125;
-            $w = 70;
-            $pdf->Rect($x, $y, $w, $h, 'F', array(), array(255, 255, 255));
-            $imgdata = file_get_contents($logos[4]);
-            $pdf->Image('@' . $imgdata, $x, $y, $w, $h, 'JPG', '', '', false, 300, '', false, false, 0, 'L', false, false);
 
             $pdf->setPrintHeader(true);
             $pdf->AddPage();
