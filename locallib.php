@@ -274,7 +274,7 @@ class custom_course_progress_lib
             }
 
             $datenow = new \DateTime('now', new \DateTimeZone(\core_date::normalise_timezone($CFG->timezone)));
-            $html = "<h3>Synthèse SONATE de $username</h3>";
+            $html = "<h3>" . get_string('summary', 'block_custom_course_progress', $username) . "</h3>";
             $html .= "<p><br><br></p>";
             $html .= "<em><h4>$user->city</h4></em>";
             $html .= "<p><br><br><br></p>";

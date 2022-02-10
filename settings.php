@@ -25,5 +25,5 @@ defined('MOODLE_INTERNAL') || die;
 
 $settings->add(new admin_setting_configtext(
     'block_custom_course_progress/report_name',
-    get_string('days', 'block_studentstracker'),
-    get_string('days_desc', 'block_studentstracker'), '3'));
+    get_string('report_name', 'block_custom_course_progress'),
+    get_string('report_name_desc', 'block_custom_course_progress'), ''));
