@@ -39,6 +39,7 @@ class custom_course_progress_lib
     private $progresscourses;
     private $idlecourses;
     private $reportlogo;
+    private $reportext;
 
     /**
      * Constructor.
@@ -56,6 +57,16 @@ class custom_course_progress_lib
     public function getReportlogo()
     {
         return $this->reportlogo;
+    }
+
+    public function setReportext($reportext)
+    {
+        $this->reportext = $reportext;
+    }
+
+    public function getReportext()
+    {
+        return $this->reportext;
     }
 
     public function prepare_content($userid)
@@ -271,8 +282,9 @@ class custom_course_progress_lib
             $y = 130;
 
             $logo = $this->getReportlogo();
+            $ext = $this->getReportext();
             if ($logo) {
-                $pdf->Image('@' . $logo, $x, $y, $w, $h, 'JPG', '', '', false, 300, '', false, false, 0, 'C', false, false);
+                $pdf->Image('@' . $logo, $x, $y, $w, $h, $ext, '', '', false, 300, '', false, false, 0, 'C', false, false);
             }
 
             $pdf->setPrintHeader(true);

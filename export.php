@@ -53,6 +53,10 @@ $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo[
 if ($file) {
     $reportlogo = $file->get_content();
     $lib->setReportlogo($reportlogo);
+    if (strpos($fileinfo['filename'], '.') !== false) {
+        $fileextension = substr($fileinfo['filename'], strrpos($fileinfo['filename'], '.') + 1);
+    }
+    $lib->setReportext($fileextension);
 } else {
     // file doesn't exist - do something
 }
