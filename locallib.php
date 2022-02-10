@@ -250,7 +250,7 @@ class custom_course_progress_lib
             $pdf->setPrintFooter(false);
             $pdf->setHeaderMargin(10);
             $pdf->setHeaderFont(array('helvetica', '', 11));
-            $pdf->setHeaderData('blocks/custom_course_progress/pix/logo-upr.jpg', 40, get_string('export_title', 'block_custom_course_progress'), $username);
+            $pdf->setHeaderData('blocks/custom_course_progress/pix/logo-upr.jpg', 1, get_string('export_title', 'block_custom_course_progress'), $username);
 
             $pdf->SetTitle(get_string('export_title', 'block_custom_course_progress'));
             $pdf->SetSubject(get_string('export_title', 'block_custom_course_progress'));
@@ -278,8 +278,8 @@ class custom_course_progress_lib
 
             $pdf->SetXY(15, 145);
             $pdf->writeHTMLCell(0, 0, 15, 100, '<h1>' . get_config('block_custom_course_progress', 'report_name') . '</h1><h1>' . $username . '</h1>', 0, 0, false, true, 'C', true);
-            $x = 75;
-            $y = 130;
+            $x = 65.5;
+            $y = 120;
 
             $logo = $this->getReportlogo();
             $ext = $this->getReportext();
@@ -344,29 +344,33 @@ class custom_course_progress_lib
             self::save_pdf($pdf, $combined);
             $pdf->Close();
 
-            $fs = get_file_storage();
-
-            $fileinfo = array(
-                'contextid' => $this->context->id, // ID of context
-                'component' => 'block_custom_course_progress', // usually = table name
-                'filearea' => 'content', // usually = table name
-                'itemid' => 0, // usually = ID of row in table
-                'filepath' => '/', // any path beginning and ending in /
-                'filename' => $filename); // any filename
-
-            $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
-                $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
-
-            if ($file) {
-                // Delete the old file first
-                $file->delete();
-            }
-
-            $file = $fs->create_file_from_pathname($fileinfo, $tmpdir . '/' . $filename);
-
-            $path = '/' . $this->context->id . '/block_custom_course_progress/content/' . $file->get_itemid() . $file->get_filepath() . $filename;
-            return moodle_url::make_file_url('/pluginfile.php', $path);
+            return $this->savePdfFile($this->context->id, $filename, $tmpdir);
         }
+    }
+
+    private function savePdfFile($contextid, $filename, $tmpdir)
+    {
+        $fs = get_file_storage();
+
+        $fileinfo = array(
+            'contextid' => $contextid, // ID of context
+            'component' => 'block_custom_course_progress', // usually = table name
+            'filearea' => 'content', // usually = table name
+            'itemid' => 0, // usually = ID of row in table
+            'filepath' => '/', // any path beginning and ending in /
+            'filename' => $filename); // any filename
+
+        $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
+            $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+
+        if ($file) {
+            // Delete the old file first
+            $file->delete();
+        }
+
+        $file = $fs->create_file_from_pathname($fileinfo, $tmpdir . '/' . $filename);
+        $path = '/' . $contextid . '/block_custom_course_progress/content/' . $file->get_itemid() . $file->get_filepath() . $filename;
+        return moodle_url::make_file_url('/pluginfile.php', $path);
     }
 
     private function get_gradeitems($userid, $courseid, $moduleinstance, $modname)

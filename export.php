@@ -51,12 +51,14 @@ $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo[
 
 // Read contents
 if ($file) {
+    $path = '/' . $fileinfo['contextid'] . '/' . $fileinfo['component'] . '/' . $fileinfo['filearea'] . '/' . $fileinfo['itemid'] . $fileinfo['filename'];
+    $logopath = moodle_url::make_file_url('/pluginfile.php', $path);
     $reportlogo = $file->get_content();
     $lib->setReportlogo($reportlogo);
     if (strpos($fileinfo['filename'], '.') !== false) {
         $fileextension = substr($fileinfo['filename'], strrpos($fileinfo['filename'], '.') + 1);
+        $lib->setReportext($fileextension);
     }
-    $lib->setReportext($fileextension);
 } else {
     // file doesn't exist - do something
 }
