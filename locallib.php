@@ -38,6 +38,7 @@ class custom_course_progress_lib
 
     private $progresscourses;
     private $idlecourses;
+    private $reportlogo;
 
     /**
      * Constructor.
@@ -45,6 +46,16 @@ class custom_course_progress_lib
     public function __construct($context)
     {
         $this->context = $context;
+    }
+
+    public function setReportlogo($reportlogo)
+    {
+        $this->reportlogo = $reportlogo;
+    }
+
+    public function getReportlogo()
+    {
+        return $this->reportlogo;
     }
 
     public function prepare_content($userid)
@@ -249,8 +260,6 @@ class custom_course_progress_lib
             $pdf->AddPage();
             $pdf->setJPEGQuality(100);
 
-            $logos = $OUTPUT->image_url('logo-sonate', 'block_custom_course_progress');
-
             $x = 15;
             $y = 20;
             $w = 80;
@@ -260,8 +269,8 @@ class custom_course_progress_lib
             $pdf->writeHTMLCell(0, 0, 15, 100, '<h1>' . get_config('block_custom_course_progress', 'report_name') . '</h1><h1>' . $username . '</h1>', 0, 0, false, true, 'C', true);
             $x = 75;
             $y = 130;
-            $imgdata = file_get_contents($logos);
-            $pdf->Image('@' . $imgdata, $x, $y, $w, $h, 'JPG', '', '', false, 300, '', false, false, 0, 'C', false, false);
+
+            $pdf->Image('@' . $logo, $x, $y, $w, $h, 'PNG', '', '', false, 300, '', false, false, 0, 'C', false, false);
 
             $pdf->setPrintHeader(true);
             $pdf->AddPage();

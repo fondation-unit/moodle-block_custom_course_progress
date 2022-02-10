@@ -30,3 +30,5 @@ $string['export_title'] = 'Progress report';
 $string['report_name'] = 'Report';
 $string['report_name_desc'] = 'The report name shown in the export.';
 $string['summary'] = 'Summary of {$a}';
+$string['reportlogo_name'] = 'Logo report';
+$string['reportlogo_desc'] = 'Logo on homepage report';

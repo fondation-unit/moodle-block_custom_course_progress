@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-require_once(dirname(__FILE__) . '/../../config.php');
-require_once(dirname(__FILE__) . '/locallib.php');
-require_once($CFG->libdir . '/pdflib.php');
+require_once dirname(__FILE__) . '/../../config.php';
+require_once dirname(__FILE__) . '/locallib.php';
+require_once $CFG->libdir . '/pdflib.php';
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -34,7 +34,7 @@ $context = context_system::instance();
 
 $lib = new custom_course_progress_lib($context);
 
-$url = $lib->make_export($USER->id, 'export_'.$USER->id.'.pdf');
+$url = $lib->make_export($USER->id, 'export_' . $USER->id . '.pdf');
 
 if (isset($url)) {
     redirect($url);
