@@ -31,10 +31,32 @@ $PAGE->set_url(new moodle_url('/blocks/custom_course_progress/export.php'));
 $PAGE->set_context($personalcontext);
 
 $context = context_system::instance();
-
+$config = get_config('block_custom_course_progress');
 $lib = new custom_course_progress_lib($context);
 
-$url = $lib->make_export($USER->id, 'export_' . $USER->id . '.pdf');
+$fs = get_file_storage();
+
+// Prepare file record object
+$fileinfo = array(
+    'component' => 'block_custom_course_progress', // usually = table name
+    'filearea' => 'reportlogo', // usually = table name
+    'itemid' => 0, // usually = ID of row in table
+    'contextid' => $context->id, // ID of context
+    'filepath' => '/', // any path beginning and ending in /
+    'filename' => $config->reportlogo); // any filename
+
+// Get file
+$file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
+    $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+
+// Read contents
+if ($file) {
+    $reportlogo = $file->get_content();
+} else {
+    // file doesn't exist - do something
+}
+
+$url = $lib->make_export($USER->id, 'export_' . $USER->id . '.pdf', $reportlogo);
 
 if (isset($url)) {
     redirect($url);

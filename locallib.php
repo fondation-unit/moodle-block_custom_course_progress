@@ -215,7 +215,7 @@ class custom_course_progress_lib
         error_reporting($olddebug);
     }
 
-    public function make_export($userid, $filename)
+    public function make_export($userid, $filename, $logo)
     {
         global $CFG, $DB, $OUTPUT;
 

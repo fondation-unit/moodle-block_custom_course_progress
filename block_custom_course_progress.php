@@ -75,7 +75,6 @@ class block_custom_course_progress extends block_base
 
         $context = context_system::instance();
         $lib = new custom_course_progress_lib($context);
-        $config = get_config('block_custom_course_progress');
 
         $this->content = new stdClass();
         $lib->prepare_content($USER->id);

@@ -29,7 +29,7 @@
 function block_custom_course_progress_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array())
 {
     // Make sure the filearea is one of those used by the plugin.
-    if ($filearea !== 'content') {
+    if ($filearea !== 'content' && $filearea !== 'reportlogo') {
         return false;
     }
 
