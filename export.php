@@ -33,6 +33,11 @@ $context = context_system::instance();
 $config = get_config('block_custom_course_progress');
 $lib = new custom_course_progress_lib($context);
 
+// The user must be allowed to download the report.
+if (!$config->user_can_download_report || $config->user_can_download_report < 1) {
+    redirect($CFG->wwwroot .'/my/');
+}
+
 $fs = get_file_storage();
 
 // Prepare file record object
