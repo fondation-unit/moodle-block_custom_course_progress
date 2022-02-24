@@ -291,6 +291,9 @@ class custom_course_progress_lib
         $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
         $username = fullname($user);
         $courses = enrol_get_all_users_courses($userid, true);
+        $exporttitle = get_config('block_custom_course_progress', 'report_name') 
+            ? get_config('block_custom_course_progress', 'report_name')
+            : get_string('export_title', 'block_custom_course_progress');
 
         $this->prepare_content($userid);
         $content = new \block_custom_course_progress\output\export_content($username, $this->progresscourses, $this->idlecourses);
@@ -331,7 +334,7 @@ class custom_course_progress_lib
             $h = 40;
 
             $pdf->SetXY(15, 145);
-            $pdf->writeHTMLCell(0, 0, 15, 100, '<h1>' . get_config('block_custom_course_progress', 'report_name') . '</h1><h1>' . $username . '</h1>', 0, 0, false, true, 'C', true);
+            $pdf->writeHTMLCell(0, 0, 15, 100, '<h1>' . $exporttitle . '</h1><h1>' . $username . '</h1>', 0, 0, false, true, 'C', true);
             $x = 65.5;
             $y = 120;
 
