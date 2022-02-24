@@ -57,25 +57,11 @@ class main_content implements renderable, templatable
      */
     public function export_for_template(renderer_base $output)
     {
-        $data = new stdClass();
-        $export = false;
-
-        if ($this->progresscourses != null) {
-            $export = true;
-        }
-
-        $noitemsimgurl = $output->image_url('items', 'block_recentlyaccesseditems')->out();
-
-        // echo "<pre>";
-        // print_r($this->progresscourses[0]->courseprogress);
-        // print_r($this->progresscourses[0]->sections[0]->progress);
-        // echo "</pre>";
-
         $data = array(
             'progresscourses' => $this->progresscourses,
             'idlecourses' => $this->idlecourses,
-            'export' => $export,
-            'noitemsimgurl' => $noitemsimgurl,
+            'export' => $this->progresscourses != null ? true : false,
+            'noitemsimgurl' => $output->image_url('items', 'block_recentlyaccesseditems')->out(),
             'pluginbaseurl' => (new moodle_url('/blocks/custom_course_progress'))->out(false),
         );
 
