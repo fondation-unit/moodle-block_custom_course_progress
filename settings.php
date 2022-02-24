@@ -13,19 +13,25 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
- * Version file
+ * custom_course_progress locallib
  *
  * @package    block_custom_course_progress
  * @copyright  2021 Pierre Duverneix
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+defined('MOODLE_INTERNAL') || die;
 
-$plugin->version = 2022021007;
-$plugin->requires = 2016052300;
-$plugin->release = '0.1';
-$plugin->component = 'block_custom_course_progress';
-$plugin->maturity = MATURITY_STABLE;
+$settings->add(new admin_setting_configtext(
+    'block_custom_course_progress/report_name',
+    get_string('report_name', 'block_custom_course_progress'),
+    get_string('report_name_desc', 'block_custom_course_progress'), ''));
+
+// $settings->add(new admin_setting_configtext());
+
+$opts = array('accepted_types' => array('.png', '.jpg', '.gif', '.webp', '.tiff', '.svg'));
+$settings->add(new admin_setting_configstoredfile(
+    'block_custom_course_progress/reportlogo',
+    get_string('reportlogo_name', 'block_custom_course_progress'),
+    get_string('reportlogo_desc', 'block_custom_course_progress'), 'reportlogo', 0, $opts));
