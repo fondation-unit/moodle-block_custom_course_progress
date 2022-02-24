@@ -20,7 +20,9 @@
   @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 }}
 <div class="container-fluid p-0">
-    <h4 class="mt-5 mb-3 text-center">Autres cours :</h4>
+    <h4 class="mt-5 mb-3 text-center">
+        {{#str}} template:other_courses, block_custom_course_progress {{/str}} :
+    </h4>
     <div class="row">
         {{#idlecourses}}
             <div class="col-md-4 col-sm-6">
@@ -34,7 +36,9 @@
                         </h5>
                     </div>
                     <div class="card-footer">
-                        <h6><a href="{{{courselink}}}">Accéder au cours</a></h6>
+                        <h6>
+                            <a href="{{{courselink}}}">{{#str}} template:course_access, block_custom_course_progress {{/str}}</a>
+                        </h6>
                     </div>
                 </div>
             </div>

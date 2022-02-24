@@ -41,7 +41,9 @@
                     <table>
                         <tr>
                             <td width="100%">
-                                <br><br><strong>A réalisé {{{courseprogress}}}% de la totalité du cours</strong><br><br>
+                                <br><br>
+                                <strong>{{#str}} template:user_progress, block_custom_course_progress, {{courseprogress}} {{/str}}</strong>
+                                <br><br>
                             </td>
                         </tr>
                     </table>
@@ -53,12 +55,16 @@
                             </tr>
                             <tr><td></td></tr>
                             <tr>
-                                <td>Activités achevées : {{{modcompleted}}}/{{{modcount}}}</td>
+                                <td>
+                                    {{#str}} template:completed_activities, block_custom_course_progress {{/str}} : 
+                                    {{{modcompleted}}}/{{{modcount}}}
+                                </td>
                             </tr>
                             <tr><td><br></td></tr>
                             {{#hasgrades}}
                                 <tr>
-                                    <td>Détail :
+                                    <td>
+                                        {{#str}} template:detail, block_custom_course_progress {{/str}} : 
                                         <ul class="no-mg">
                                         {{#modules}}
                                             {{#gradeitems}}

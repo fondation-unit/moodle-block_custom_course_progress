@@ -20,7 +20,9 @@
   @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 }}
 <div class="container-fluid p-0">
-    <h4 class="mt-3 mb-3 text-center">En progression :</h4>
+    <h4 class="mt-3 mb-3 text-center">
+        {{#str}} template:in_progress, block_custom_course_progress {{/str}}
+    </h4>
     <div class="row">
         {{#progresscourses}}
             <div class="col-md-4 col-sm-6">
@@ -34,7 +36,7 @@
                         </h5>
                     
                         {{#courseprogress}} 
-                            <h6>A réalisé {{{courseprogress}}}% de la totalité du cours</h6>
+                            <h6>{{#str}} template:user_progress, block_custom_course_progress, {{courseprogress}} {{/str}}</h6>
                             <div class="progress mb-0">
                                 <div class="progress-bar bg-primary" 
                                     role="progressbar" 
@@ -68,7 +70,9 @@
                                                 data-target="#collapse-{{{id}}}" 
                                                 aria-expanded="false" 
                                                 aria-controls="collapse">
-                                                <i class="fa fa-chevron-right"></i> <span class="text-muted">Activités achevées : {{{modcompleted}}}/{{{modcount}}}</span>
+                                                <i class="fa fa-chevron-right"></i> 
+                                                <span class="text-muted">
+                                                {{#str}} template:completed_activities, block_custom_course_progress {{/str}} : {{{modcompleted}}}/{{{modcount}}}</span>
                                             </a>
                                             <div class="small ml-auto text-muted">{{{progress}}}%</div>
                                         </div>
@@ -85,7 +89,10 @@
                                     {{/hasgrades}}
                                     {{^hasgrades}}
                                         <div class="d-flex">
-                                            <div class="small text-muted">Activités achevées : {{{modcompleted}}}/{{{modcount}}}</div>
+                                            <div class="small text-muted">
+                                                {{#str}} template:completed_activities, block_custom_course_progress {{/str}} : 
+                                                {{{modcompleted}}}/{{{modcount}}}
+                                            </div>
                                             <div class="small ml-auto text-muted">{{{progress}}}%</div>
                                         </div>
                                     {{/hasgrades}}
