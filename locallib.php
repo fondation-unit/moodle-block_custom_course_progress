@@ -363,7 +363,7 @@ class custom_course_progress_lib
             $html .= "<h3>Les modules travaillés :</h3>";
             $html .= "<p><br><br><br></p>";
             foreach ($this->progresscourses as $course) {
-                if (isset($course) && $course->courseprogress > 0) {
+                if (isset($course) && isset($course->courseprogress) && $course->courseprogress > 0) {
                     $html .= "<h4>$course->fullname</h4>";
                     $html .= "<p>A réalisé " . $course->courseprogress . "%</p>";
                     $validated = 0;
