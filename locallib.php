@@ -117,7 +117,7 @@ class custom_course_progress_lib
     }
 
     /**
-     * prepare_content
+     * Parse the user's courses, calculate the progression, get the activity grades.
      *
      * @param  mixed $userid
      * @return void
@@ -195,15 +195,13 @@ class custom_course_progress_lib
                         }
                     }
 
-                    if ($section->section > 0) {
-                        if ($hasprogress) {
-                            $trackedsection->progress = round($trackedsection->modcompleted / $trackedsection->modcount * 100, 1);
-                            $courseobj->sections[] = $trackedsection;
-                            $courseobj->courseprogress = round($progress, 1);
-                            $courseobj->courseprogressdiff = round(100 - $courseobj->courseprogress);
-                        } else {
-                            $courseobj->noprogresssections[] = $section;
-                        }
+                    if ($hasprogress) {
+                        $trackedsection->progress = round($trackedsection->modcompleted / $trackedsection->modcount * 100, 1);
+                        $courseobj->sections[] = $trackedsection;
+                        $courseobj->courseprogress = round($progress, 1);
+                        $courseobj->courseprogressdiff = round(100 - $courseobj->courseprogress);
+                    } else {
+                        $courseobj->noprogresssections[] = $section;
                     }
                 }
 
@@ -494,7 +492,7 @@ class custom_course_progress_lib
     }
 
     /**
-     * get_first_use_date
+     * Get the user's first day of use of the platform.
      *
      * @param  mixed $userid
      * @param  mixed $courses
