@@ -325,16 +325,6 @@ class custom_course_progress_lib
             $pdf = new custompdf();
             $pdf->SetCreator(PDF_CREATOR);
             $pdf->SetAuthor(get_config('block_custom_course_progress', 'author') );
-            $x = 15;
-            $y = 20;
-            $w = 80;
-            $h = 40;
-
-            $ext = $this->getReportext();
-            if ($logo) {
-                $pdf->Image('@' . $logo, $x, $y, $w, $h, $ext, '', '', false, 300, '', false, false, 0, 'C', false, false);
-            }
-
             $pdf->setPrintHeader(false);
             $pdf->setPrintFooter(false);
             $pdf->setHeaderMargin(10);
@@ -360,6 +350,16 @@ class custom_course_progress_lib
 
             $pdf->AddPage();
             $pdf->setJPEGQuality(100);
+
+            $x = 15;
+            $y = 20;
+            $w = 80;
+            $h = 40;
+
+            $ext = $this->getReportext();
+            if ($logo) {
+                $pdf->Image('@' . $logo, $x, $y, $w, $h, $ext, '', '', false, 300, '', false, false, 0, 'C', false, false);
+            }
 
             $pdf->SetXY(15, 145);
             $pdf->writeHTMLCell(0, 0, 15, 100, '<h1>' . $exporttitle . '</h1><h1>' . $username . '</h1>', 0, 0, false, true, 'C', true);
