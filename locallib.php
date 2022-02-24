@@ -19,7 +19,7 @@ namespace block_custom_course_progress;
 defined('MOODLE_INTERNAL') || die();
 
 use moodle_url;
-use pdf;
+use block_custom_course_progress\custompdf;
 
 /**
  * custom_course_progress locallib
@@ -39,6 +39,7 @@ class custom_course_progress_lib
     private $progresscourses;
     private $idlecourses;
     private $reportlogo;
+    private $reportlogopath;
     private $reportext;
 
     /**
@@ -71,6 +72,27 @@ class custom_course_progress_lib
     public function getReportlogo()
     {
         return $this->reportlogo;
+    }
+
+    /**
+     * setReportlogoPath
+     *
+     * @param  mixed $reportlogo
+     * @return void
+     */
+    public function setReportlogoPath($reportlogopath)
+    {
+        $this->reportlogopath = $reportlogopath;
+    }
+
+    /**
+     * getReportlogoPath
+     *
+     * @return void
+     */
+    public function getReportlogoPath()
+    {
+        return $this->reportlogopath;
     }
 
     /**
@@ -294,20 +316,31 @@ class custom_course_progress_lib
         $exporttitle = get_config('block_custom_course_progress', 'report_name') 
             ? get_config('block_custom_course_progress', 'report_name')
             : get_string('export_title', 'block_custom_course_progress');
+        $logo = $this->getReportlogo();
 
         $this->prepare_content($userid);
         $content = new \block_custom_course_progress\output\export_content($username, $this->progresscourses, $this->idlecourses);
 
         if (isset($content)) {
-            $pdf = new pdf();
+            $pdf = new custompdf();
             $pdf->SetCreator(PDF_CREATOR);
-            $pdf->SetAuthor('Fondation UNIT');
+            $pdf->SetAuthor(get_config('block_custom_course_progress', 'author') );
+            $x = 15;
+            $y = 20;
+            $w = 80;
+            $h = 40;
+
+            $ext = $this->getReportext();
+            if ($logo) {
+                $pdf->Image('@' . $logo, $x, $y, $w, $h, $ext, '', '', false, 300, '', false, false, 0, 'C', false, false);
+            }
 
             $pdf->setPrintHeader(false);
             $pdf->setPrintFooter(false);
             $pdf->setHeaderMargin(10);
             $pdf->setHeaderFont(array('helvetica', '', 11));
-            $pdf->setHeaderData('blocks/custom_course_progress/pix/logo-upr.jpg', 1, get_string('export_title', 'block_custom_course_progress'), $username);
+            // Set the PDF header using the custom class method.
+            $pdf->setHtmlHeader(get_string('export_title', 'block_custom_course_progress') . '<br>' . $username);
 
             $pdf->SetTitle(get_string('export_title', 'block_custom_course_progress'));
             $pdf->SetSubject(get_string('export_title', 'block_custom_course_progress'));
@@ -328,21 +361,10 @@ class custom_course_progress_lib
             $pdf->AddPage();
             $pdf->setJPEGQuality(100);
 
-            $x = 15;
-            $y = 20;
-            $w = 80;
-            $h = 40;
-
             $pdf->SetXY(15, 145);
             $pdf->writeHTMLCell(0, 0, 15, 100, '<h1>' . $exporttitle . '</h1><h1>' . $username . '</h1>', 0, 0, false, true, 'C', true);
             $x = 65.5;
             $y = 120;
-
-            $logo = $this->getReportlogo();
-            $ext = $this->getReportext();
-            if ($logo) {
-                $pdf->Image('@' . $logo, $x, $y, $w, $h, $ext, '', '', false, 300, '', false, false, 0, 'C', false, false);
-            }
 
             $pdf->setPrintHeader(true);
             $pdf->AddPage();

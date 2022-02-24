@@ -28,10 +28,14 @@ $settings->add(new admin_setting_configtext(
     get_string('report_name', 'block_custom_course_progress'),
     get_string('report_name_desc', 'block_custom_course_progress'), ''));
 
-// $settings->add(new admin_setting_configtext());
-
 $opts = array('accepted_types' => array('.png', '.jpg', '.gif', '.webp', '.tiff', '.svg'));
 $settings->add(new admin_setting_configstoredfile(
     'block_custom_course_progress/reportlogo',
     get_string('reportlogo_name', 'block_custom_course_progress'),
     get_string('reportlogo_desc', 'block_custom_course_progress'), 'reportlogo', 0, $opts));
+
+$opts = array('accepted_types' => array('.png', '.jpg', '.gif', '.webp', '.tiff', '.svg'));
+$settings->add(new admin_setting_configtext(
+    'block_custom_course_progress/author',
+    get_string('author', 'block_custom_course_progress'),
+    get_string('author_desc', 'block_custom_course_progress'), ''));
