@@ -60,6 +60,7 @@ class main_content implements renderable, templatable
         $data = array(
             'progresscourses' => $this->progresscourses,
             'idlecourses' => $this->idlecourses,
+            'candownload' => get_config('block_custom_course_progress', 'user_can_download_report'),
             'export' => $this->progresscourses != null ? true : false,
             'noitemsimgurl' => $output->image_url('items', 'block_recentlyaccesseditems')->out(),
             'pluginbaseurl' => (new moodle_url('/blocks/custom_course_progress'))->out(false),

@@ -39,3 +39,9 @@ $settings->add(new admin_setting_configtext(
     'block_custom_course_progress/author',
     get_string('author', 'block_custom_course_progress'),
     get_string('author_desc', 'block_custom_course_progress'), ''));
+
+$opts = array('accepted_types' => array('.png', '.jpg', '.gif', '.webp', '.tiff', '.svg'));
+$settings->add(new admin_setting_configcheckbox(
+    'block_custom_course_progress/user_can_download_report',
+    get_string('user_can_download_report', 'block_custom_course_progress'),
+    get_string('user_can_download_report_desc', 'block_custom_course_progress'), 0));
