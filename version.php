@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2022022500;
+$plugin->version = 2022022501;
 $plugin->requires = 2016052300;
 $plugin->release = '0.1';
 $plugin->component = 'block_custom_course_progress';

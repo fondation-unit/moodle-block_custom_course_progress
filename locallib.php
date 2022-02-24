@@ -295,7 +295,7 @@ class custom_course_progress_lib
     }
 
     /**
-     * make_export
+     * Make the export PDF file.
      *
      * @param  mixed $userid
      * @param  mixed $filename
@@ -377,20 +377,18 @@ class custom_course_progress_lib
             }
 
             $datenow = new \DateTime('now', new \DateTimeZone(\core_date::normalise_timezone($CFG->timezone)));
-            $html = "<h3>" . get_string('summary', 'block_custom_course_progress', $username) . "</h3>";
-            $html .= "<p><br><br></p>";
-            $html .= "<em><h4>$user->city</h4></em>";
-            $html .= "<p><br><br><br></p>";
-            $html .= "<p>Date du jour : " . $datenow->format('d/m/Y') . "</p>";
-            $html .= "<p>1<sup>er</sup> jour d'utilisation de la plateforme : " . date('d/m/Y', $firstusedate->timecreated) . "</p>";
-            $html .= "<p><br><br><br></p>";
-            $html .= "<p><br><br><br></p>";
-            $html .= "<h3>Les modules travaillés :</h3>";
-            $html .= "<p><br><br><br></p>";
+            $sep = "<p><br><br><br><br><br><br></p>";
+
+            $html = "<h3>" . get_string('summary', 'block_custom_course_progress', $username) . "</h3>" . $sep;
+            $html .= "<em><h4>$user->city</h4></em>" . $sep;
+            $html .= "<p>" . get_string('export:dateoftheday', 'block_custom_course_progress') . $datenow->format('d/m/Y') . "</p>";
+            $html .= "<p>" . get_string('export:first_day', 'block_custom_course_progress') . date('d/m/Y', $firstusedate->timecreated) . "</p>";
+            $html .= $sep;
+            $html .= "<h3>" . get_string('export:worked_courses', 'block_custom_course_progress') . "</h3>" . $sep;
             foreach ($this->progresscourses as $course) {
                 if (isset($course) && isset($course->courseprogress) && $course->courseprogress > 0) {
                     $html .= "<h4>$course->fullname</h4>";
-                    $html .= "<p>A réalisé " . $course->courseprogress . "%</p>";
+                    $html .= "<p>" . get_string('export:achieved', 'block_custom_course_progress') . " " . $course->courseprogress . "%</p>";
                     $validated = 0;
                     $inprogress = 0;
                     foreach ($course->sections as $section) {
@@ -402,16 +400,16 @@ class custom_course_progress_lib
                     }
                     $noprogress = count($course->noprogresssections);
                     $total = count($course->sections) + $noprogress;
-                    $html .= "<p>Total de jalons : " . $total . "</p>";
-                    $html .= "<p>Jalons complétés : $validated</p>";
-                    $html .= "<p>Jalons commencés (mais encore incomplets) : $inprogress</p>";
-                    $html .= "<p>Jalons non travaillés : $noprogress</p>";
-                    $html .= "<p><br><br><br></p>";
+                    $html .= "<p>" . get_string('export:total_sections', 'block_custom_course_progress') . $total . "</p>";
+                    $html .= "<p>" . get_string('export:completed_sections', 'block_custom_course_progress') . $validated . "</p>";
+                    $html .= "<p>" . get_string('export:inprogress_sections', 'block_custom_course_progress') . $inprogress . "</p>";
+                    $html .= "<p>" . get_string('export:untouched_sections', 'block_custom_course_progress') . $noprogress . "</p>";
+                    $html .= $sep;
                 }
             }
-            $html .= "<p><br><br><br><br><br><br><br></p>";
-            $html .= "<h3>Les modules non travaillés :</h3>";
-            $html .= "<p><br><br><br></p>";
+            $html .= $sep;
+            $html .= "<h3>" . get_string('export:untouched_courses', 'block_custom_course_progress') . "</h3>";
+            $html .= $sep;
             foreach ($this->idlecourses as $course) {
                 $html .= "<h4>$course->fullname</h4><br><br>";
             }
