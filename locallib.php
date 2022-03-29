@@ -286,6 +286,61 @@ class custom_course_progress_lib
     }
 
     /**
+     * get_gradeitems
+     *
+     * @param  mixed $userid
+     * @param  mixed $courseid
+     * @param  mixed $moduleinstance
+     * @param  mixed $modname
+     * @return void
+     */
+    private function get_gradeitems($userid, $courseid, $moduleinstance, $modname)
+    {
+        global $DB;
+
+        $sql = "SELECT {grade_items}.id AS id, {course}.id as course_id,
+                {grade_items}.itemname, {grade_items}.itemtype, {grade_items}.itemmodule,
+                ROUND({grade_grades}.finalgrade, 2) AS finalgrade,
+                ROUND({grade_grades}.rawgrademax, 0) AS grademax,
+                FROM_UNIXTIME({grade_grades}.timecreated) AS date_created,
+                FROM_UNIXTIME({grade_grades}.timemodified) AS date_modified,
+                SUBSTRING({grade_grades}.feedback, 1, 15)
+                FROM {grade_grades}
+                JOIN {user} ON {grade_grades}.userid = {user}.id
+                JOIN {grade_items} ON {grade_grades}.itemid = {grade_items}.id
+                JOIN {course} ON {grade_items}.courseid = {course}.id
+                WHERE {user}.id = ?
+                AND {course}.id = ?
+                AND {grade_items}.iteminstance = ?
+                AND {grade_items}.itemmodule = ?
+                AND {grade_items}.itemtype = 'mod'
+                AND {grade_grades}.finalgrade > 0
+                ORDER BY {course}.id, {grade_items}.id, {grade_grades}.timemodified LIMIT 1;";
+
+        return $DB->get_record_sql($sql, array($userid, $courseid, $moduleinstance, $modname));
+    }
+
+    /**
+     * Get the user's first day of use of the platform.
+     *
+     * @param  mixed $userid
+     * @param  mixed $courses
+     * @return void
+     */
+    private function get_first_use_date($userid, $courses)
+    {
+        global $DB;
+
+        $sql = "SELECT {logstore_standard_log}.timecreated
+                FROM {logstore_standard_log}
+                WHERE {logstore_standard_log}.userid = " . $userid . "
+                AND {logstore_standard_log}.courseid IN (" . implode(',', array_column($courses, 'id')) . ")
+                ORDER BY {logstore_standard_log}.timecreated ASC LIMIT 1;";
+
+        return $DB->get_record_sql($sql);
+    }
+
+    /**
      * Get a hash that will be unique and can be used in a path name.
      *
      * @param int|\assign $assignment
@@ -480,60 +535,5 @@ class custom_course_progress_lib
         $file = $fs->create_file_from_pathname($fileinfo, $tmpdir . '/' . $filename);
         $path = '/' . $contextid . '/block_custom_course_progress/content/' . $file->get_itemid() . $file->get_filepath() . $filename;
         return moodle_url::make_file_url('/pluginfile.php', $path);
-    }
-
-    /**
-     * get_gradeitems
-     *
-     * @param  mixed $userid
-     * @param  mixed $courseid
-     * @param  mixed $moduleinstance
-     * @param  mixed $modname
-     * @return void
-     */
-    private function get_gradeitems($userid, $courseid, $moduleinstance, $modname)
-    {
-        global $DB;
-
-        $sql = "SELECT {grade_items}.id AS id, {course}.id as course_id,
-                {grade_items}.itemname, {grade_items}.itemtype, {grade_items}.itemmodule,
-                ROUND({grade_grades}.finalgrade, 2) AS finalgrade,
-                ROUND({grade_grades}.rawgrademax, 0) AS grademax,
-                FROM_UNIXTIME({grade_grades}.timecreated) AS date_created,
-                FROM_UNIXTIME({grade_grades}.timemodified) AS date_modified,
-                SUBSTRING({grade_grades}.feedback, 1, 15)
-                FROM {grade_grades}
-                JOIN {user} ON {grade_grades}.userid = {user}.id
-                JOIN {grade_items} ON {grade_grades}.itemid = {grade_items}.id
-                JOIN {course} ON {grade_items}.courseid = {course}.id
-                WHERE {user}.id = ?
-                AND {course}.id = ?
-                AND {grade_items}.iteminstance = ?
-                AND {grade_items}.itemmodule = ?
-                AND {grade_items}.itemtype = 'mod'
-                AND {grade_grades}.finalgrade > 0
-                ORDER BY {course}.id, {grade_items}.id, {grade_grades}.timemodified LIMIT 1;";
-
-        return $DB->get_record_sql($sql, array($userid, $courseid, $moduleinstance, $modname));
-    }
-
-    /**
-     * Get the user's first day of use of the platform.
-     *
-     * @param  mixed $userid
-     * @param  mixed $courses
-     * @return void
-     */
-    private function get_first_use_date($userid, $courses)
-    {
-        global $DB;
-
-        $sql = "SELECT {logstore_standard_log}.timecreated
-                FROM {logstore_standard_log}
-                WHERE {logstore_standard_log}.userid = " . $userid . "
-                AND {logstore_standard_log}.courseid IN (" . implode(',', array_column($courses, 'id')) . ")
-                ORDER BY {logstore_standard_log}.timecreated ASC LIMIT 1;";
-
-        return $DB->get_record_sql($sql);
     }
 }
