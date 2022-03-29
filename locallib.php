@@ -119,6 +119,24 @@ class custom_course_progress_lib
     }
 
     /**
+     * Set a trackedsection object.
+     *
+     * @return stdClass
+     */
+    public function setTrackedsection($courseid, $section, $format)
+    {
+        $trackedsection = $section;
+        $trackedsection->name = $format->get_section_name($section);;
+        $trackedsection->modules = array();
+        $trackedsection->modcount = 0;
+        $trackedsection->modcompleted = 0;
+        $trackedsection->progress = 0;
+        $trackedsection->sectionlink = new moodle_url('/course/view.php', array('id' => $courseid, 'section' => $section->section));
+        $trackedsection->hasgrades = false;
+        return $trackedsection;
+    }
+
+    /**
      * Parse the user's courses, calculate the progression, get the activity grades.
      *
      * @param  mixed $userid
@@ -153,15 +171,7 @@ class custom_course_progress_lib
                 $progress = \core_completion\progress::get_course_progress_percentage($course);
 
                 foreach ($modinfo->get_section_info_all() as $section) {
-                    $sectionname = $format->get_section_name($section);
-                    $trackedsection = $section;
-                    $trackedsection->name = $sectionname;
-                    $trackedsection->modules = array();
-                    $trackedsection->modcount = 0;
-                    $trackedsection->modcompleted = 0;
-                    $trackedsection->progress = 0;
-                    $trackedsection->sectionlink = new moodle_url('/course/view.php', array('id' => $course->id, 'section' => $section->section));
-                    $trackedsection->hasgrades = false;
+                    $trackedsection = $this->setTrackedsection($course->id, $section, $format);
                     $hasprogress = false;
 
                     foreach ($mods as $module) {
