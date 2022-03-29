@@ -31,7 +31,8 @@ $PAGE->set_context($personalcontext);
 
 $context = context_system::instance();
 $config = get_config('block_custom_course_progress');
-$lib = new custom_course_progress_lib($context);
+$showidlecourses = $config->showidlecourses;
+$lib = new custom_course_progress_lib($context, $showidlecourses);
 
 // The user must be allowed to download the report.
 if (!$config->user_can_download_report || $config->user_can_download_report < 1) {

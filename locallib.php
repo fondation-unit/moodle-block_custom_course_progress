@@ -38,6 +38,7 @@ class custom_course_progress_lib
 
     private $progresscourses;
     private $idlecourses;
+    private $showidlecourses;
     private $reportlogo;
     private $reportlogopath;
     private $reportext;
@@ -48,9 +49,10 @@ class custom_course_progress_lib
      * @param  mixed $context
      * @return void
      */
-    public function __construct($context)
+    public function __construct($context, $showidlecourses)
     {
         $this->context = $context;
+        $this->showidlecourses = $showidlecourses;
     }
 
     /**
@@ -231,7 +233,12 @@ class custom_course_progress_lib
      */
     public function generate_content()
     {
-        return new \block_custom_course_progress\output\main_content($this->progresscourses, $this->idlecourses, $this->context);
+        return new \block_custom_course_progress\output\main_content(
+            $this->progresscourses,
+            $this->idlecourses,
+            $this->context,
+            $this->showidlecourses
+        );
     }
 
     /**
@@ -317,7 +324,12 @@ class custom_course_progress_lib
         $logo = $this->getReportlogo();
 
         $this->prepare_content($userid);
-        $content = new \block_custom_course_progress\output\export_content($username, $this->progresscourses, $this->idlecourses);
+        $content = new \block_custom_course_progress\output\export_content(
+            $username,
+            $this->progresscourses,
+            $this->idlecourses,
+            $this->showidlecourses
+        );
 
         if (isset($content)) {
             $pdf = new custompdf();
@@ -383,6 +395,7 @@ class custom_course_progress_lib
             $html .= "<p>" . get_string('export:first_day', 'block_custom_course_progress') . date('d/m/Y', $firstusedate->timecreated) . "</p>";
             $html .= $sep;
             $html .= "<h3>" . get_string('export:worked_courses', 'block_custom_course_progress') . "</h3>" . $sep;
+
             foreach ($this->progresscourses as $course) {
                 if (isset($course) && isset($course->courseprogress) && $course->courseprogress > 0) {
                     $html .= "<h4>$course->fullname</h4>";
@@ -405,14 +418,17 @@ class custom_course_progress_lib
                     $html .= $sep;
                 }
             }
-            $html .= $sep;
-            $html .= "<h3>" . get_string('export:untouched_courses', 'block_custom_course_progress') . "</h3>";
-            $html .= $sep;
-            foreach ($this->idlecourses as $course) {
-                $html .= "<h4>$course->fullname</h4><br><br>";
-            }
-            $pdf->writeHTML($html);
 
+            if ($this->showidlecourses) {
+                $html .= $sep;
+                $html .= "<h3>" . get_string('export:untouched_courses', 'block_custom_course_progress') . "</h3>";
+                $html .= $sep;
+                foreach ($this->idlecourses as $course) {
+                    $html .= "<h4>$course->fullname</h4><br><br>";
+                }
+            }
+
+            $pdf->writeHTML($html);
             // Détail cours.
             $pdf->AddPage();
             $pdf->writeHTML($styles . $OUTPUT->render_from_template('block_custom_course_progress/export', $content));
