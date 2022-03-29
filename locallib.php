@@ -454,12 +454,10 @@ class custom_course_progress_lib
 
             $datenow = new \DateTime('now', new \DateTimeZone(\core_date::normalise_timezone($CFG->timezone)));
             $sep = "<p><br><br><br><br><br><br></p>";
-
             $html = "<h3>" . get_string('summary', 'block_custom_course_progress', $username) . "</h3>" . $sep;
             $html .= "<em><h4>$user->city</h4></em>" . $sep;
             $html .= "<p>" . get_string('export:dateoftheday', 'block_custom_course_progress') . $datenow->format('d/m/Y') . "</p>";
-            $html .= "<p>" . get_string('export:first_day', 'block_custom_course_progress') . date('d/m/Y', $firstusedate->timecreated) . "</p>";
-            $html .= $sep;
+            $html .= "<p>" . get_string('export:first_day', 'block_custom_course_progress') . date('d/m/Y', $firstusedate->timecreated) . "</p>" . $sep;
             $html .= "<h3>" . get_string('export:worked_courses', 'block_custom_course_progress') . "</h3>" . $sep;
 
             foreach ($this->progresscourses as $course) {
@@ -486,18 +484,13 @@ class custom_course_progress_lib
             }
 
             if ($this->showidlecourses) {
-                $html .= $sep;
-                $html .= "<h3>" . get_string('export:untouched_courses', 'block_custom_course_progress') . "</h3>";
-                $html .= $sep;
+                $html .= $sep . "<h3>" . get_string('export:untouched_courses', 'block_custom_course_progress') . "</h3>" . $sep;
                 foreach ($this->idlecourses as $course) {
                     $html .= "<h4>$course->fullname</h4><br><br>";
                 }
             }
 
-            $pdf->writeHTML($html);
-            // Détail cours.
-            $pdf->AddPage();
-            $pdf->writeHTML($styles . $OUTPUT->render_from_template('block_custom_course_progress/export', $content));
+            $pdf->writeHTML($html . $styles);
             self::save_pdf($pdf, $combined);
             $pdf->Close();
 
