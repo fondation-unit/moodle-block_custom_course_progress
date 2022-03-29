@@ -145,6 +145,7 @@ class custom_course_progress_lib
     public function prepare_content($userid)
     {
         $courses = enrol_get_all_users_courses($userid, true);
+        $trackedmodules = explode(',', get_config('block_custom_course_progress', 'trackedmodules'));
         $progresscourses = array();
         $idlecourses = array();
 
@@ -184,7 +185,7 @@ class custom_course_progress_lib
                             $copymodule->name = $module->name;
                             $copymodule->modname = $module->modname;
 
-                            if ($module->modname == 'quiz' || $module->modname == 'assign' || $module->modname == 'hvp') {
+                            if (in_array($module->modname, $trackedmodules)) {
                                 $gradeitems = $this->get_gradeitems($userid, $course->id, $module->instance, $module->modname);
                                 $copymodule->gradeitems = $gradeitems;
                                 if (isset($gradeitems->id)) {
