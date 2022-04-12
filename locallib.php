@@ -19,7 +19,7 @@ namespace block_custom_course_progress;
 defined('MOODLE_INTERNAL') || die();
 
 use moodle_url;
-use pdf;
+use block_custom_course_progress\custompdf;
 
 /**
  * custom_course_progress locallib
@@ -38,7 +38,9 @@ class custom_course_progress_lib
 
     private $progresscourses;
     private $idlecourses;
+    private $showidlecourses;
     private $reportlogo;
+    private $reportlogopath;
     private $reportext;
 
     /**
@@ -47,9 +49,10 @@ class custom_course_progress_lib
      * @param  mixed $context
      * @return void
      */
-    public function __construct($context)
+    public function __construct($context, $showidlecourses)
     {
         $this->context = $context;
+        $this->showidlecourses = $showidlecourses;
     }
 
     /**
@@ -74,6 +77,27 @@ class custom_course_progress_lib
     }
 
     /**
+     * setReportlogoPath
+     *
+     * @param  mixed $reportlogo
+     * @return void
+     */
+    public function setReportlogoPath($reportlogopath)
+    {
+        $this->reportlogopath = $reportlogopath;
+    }
+
+    /**
+     * getReportlogoPath
+     *
+     * @return void
+     */
+    public function getReportlogoPath()
+    {
+        return $this->reportlogopath;
+    }
+
+    /**
      * setReportext
      *
      * @param  mixed $reportext
@@ -95,7 +119,25 @@ class custom_course_progress_lib
     }
 
     /**
-     * prepare_content
+     * Set a trackedsection object.
+     *
+     * @return stdClass
+     */
+    public function setTrackedsection($courseid, $section, $format)
+    {
+        $trackedsection = $section;
+        $trackedsection->name = $format->get_section_name($section);;
+        $trackedsection->modules = array();
+        $trackedsection->modcount = 0;
+        $trackedsection->modcompleted = 0;
+        $trackedsection->progress = 0;
+        $trackedsection->sectionlink = new moodle_url('/course/view.php', array('id' => $courseid, 'section' => $section->section));
+        $trackedsection->hasgrades = false;
+        return $trackedsection;
+    }
+
+    /**
+     * Parse the user's courses, calculate the progression, get the activity grades.
      *
      * @param  mixed $userid
      * @return void
@@ -103,6 +145,7 @@ class custom_course_progress_lib
     public function prepare_content($userid)
     {
         $courses = enrol_get_all_users_courses($userid, true);
+        $trackedmodules = explode(',', get_config('block_custom_course_progress', 'trackedmodules'));
         $progresscourses = array();
         $idlecourses = array();
 
@@ -129,15 +172,7 @@ class custom_course_progress_lib
                 $progress = \core_completion\progress::get_course_progress_percentage($course);
 
                 foreach ($modinfo->get_section_info_all() as $section) {
-                    $sectionname = $format->get_section_name($section);
-                    $trackedsection = $section;
-                    $trackedsection->name = $sectionname;
-                    $trackedsection->modules = array();
-                    $trackedsection->modcount = 0;
-                    $trackedsection->modcompleted = 0;
-                    $trackedsection->progress = 0;
-                    $trackedsection->sectionlink = new moodle_url('/course/view.php', array('id' => $course->id, 'section' => $section->section));
-                    $trackedsection->hasgrades = false;
+                    $trackedsection = $this->setTrackedsection($course->id, $section, $format);
                     $hasprogress = false;
 
                     foreach ($mods as $module) {
@@ -150,7 +185,7 @@ class custom_course_progress_lib
                             $copymodule->name = $module->name;
                             $copymodule->modname = $module->modname;
 
-                            if ($module->modname == 'quiz' || $module->modname == 'assign' || $module->modname == 'hvp') {
+                            if (in_array($module->modname, $trackedmodules)) {
                                 $gradeitems = $this->get_gradeitems($userid, $course->id, $module->instance, $module->modname);
                                 $copymodule->gradeitems = $gradeitems;
                                 if (isset($gradeitems->id)) {
@@ -173,15 +208,13 @@ class custom_course_progress_lib
                         }
                     }
 
-                    if ($section->section > 0) {
-                        if ($hasprogress) {
-                            $trackedsection->progress = round($trackedsection->modcompleted / $trackedsection->modcount * 100, 1);
-                            $courseobj->sections[] = $trackedsection;
-                            $courseobj->courseprogress = round($progress, 1);
-                            $courseobj->courseprogressdiff = round(100 - $courseobj->courseprogress);
-                        } else {
-                            $courseobj->noprogresssections[] = $section;
-                        }
+                    if ($hasprogress) {
+                        $trackedsection->progress = round($trackedsection->modcompleted / $trackedsection->modcount * 100, 1);
+                        $courseobj->sections[] = $trackedsection;
+                        $courseobj->courseprogress = round($progress, 1);
+                        $courseobj->courseprogressdiff = round(100 - $courseobj->courseprogress);
+                    } else {
+                        $courseobj->noprogresssections[] = $section;
                     }
                 }
 
@@ -198,10 +231,41 @@ class custom_course_progress_lib
         usort($progresscourses, "self::cmp");
         usort($idlecourses, "self::cmp");
 
-        $this->progresscourses = $progresscourses;
+        $this->progresscourses = self::progresscourses_export($progresscourses);
         $this->idlecourses = $idlecourses;
 
         return $this;
+    }
+    
+    /**
+     * Prepare the progresscourses array for export
+     *
+     * @param  mixed $progresscourses
+     * @return void
+     */
+    private static function progresscourses_export($progresscourses) 
+    {
+        foreach ($progresscourses as $course) {
+            if (isset($course) && isset($course->courseprogress) && $course->courseprogress > 0) {
+                $validated = 0;
+                $inprogress = 0;
+                foreach ($course->sections as $section) {
+                    if ($section->progress > 99) {
+                        $validated++;
+                    } else if ($section->progress >= 0) {
+                        $inprogress++;
+                    }
+                }
+                $noprogress = count($course->noprogresssections);
+                $total = count($course->sections) + $noprogress;
+
+                $course->validated = $validated;
+                $course->inprogress = $inprogress;
+                $course->noprogress = $noprogress;
+                $course->total = $total;
+            }
+        }
+        return $progresscourses;
     }
 
     /**
@@ -211,7 +275,12 @@ class custom_course_progress_lib
      */
     public function generate_content()
     {
-        return new \block_custom_course_progress\output\main_content($this->progresscourses, $this->idlecourses, $this->context);
+        return new \block_custom_course_progress\output\main_content(
+            $this->progresscourses,
+            $this->idlecourses,
+            $this->context,
+            $this->showidlecourses
+        );
     }
 
     /**
@@ -246,193 +315,6 @@ class custom_course_progress_lib
         }
 
         return $url;
-    }
-
-    /**
-     * Get a hash that will be unique and can be used in a path name.
-     *
-     * @param int|\assign $assignment
-     * @param int $userid
-     * @param int $attemptnumber (-1 means latest attempt)
-     */
-    private static function hash($contextid, $userid)
-    {
-        return sha1($contextid . '_' . $userid);
-    }
-
-    /**
-     * Save the completed PDF to the given file.
-     *
-     * @param string $filename the filename for the PDF (including the full path)
-     */
-    private static function save_pdf($pdf, $filename)
-    {
-        $olddebug = error_reporting(0);
-        $pdf->Output($filename, 'F');
-        error_reporting($olddebug);
-    }
-
-    /**
-     * make_export
-     *
-     * @param  mixed $userid
-     * @param  mixed $filename
-     * @return void
-     */
-    public function make_export($userid, $filename)
-    {
-        global $CFG, $DB, $OUTPUT;
-
-        require_once $CFG->libdir . '/pdflib.php';
-
-        $tmpdir = \make_temp_directory('block_custom_course_progress/export/' . self::hash($this->context->id, $userid));
-        $combined = $tmpdir . '/' . $filename;
-
-        $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
-        $username = fullname($user);
-        $courses = enrol_get_all_users_courses($userid, true);
-
-        $this->prepare_content($userid);
-        $content = new \block_custom_course_progress\output\export_content($username, $this->progresscourses, $this->idlecourses);
-
-        if (isset($content)) {
-            $pdf = new pdf();
-            $pdf->SetCreator(PDF_CREATOR);
-            $pdf->SetAuthor('Fondation UNIT');
-
-            $pdf->setPrintHeader(false);
-            $pdf->setPrintFooter(false);
-            $pdf->setHeaderMargin(10);
-            $pdf->setHeaderFont(array('helvetica', '', 11));
-            $pdf->setHeaderData('blocks/custom_course_progress/pix/logo-upr.jpg', 1, get_string('export_title', 'block_custom_course_progress'), $username);
-
-            $pdf->SetTitle(get_string('export_title', 'block_custom_course_progress'));
-            $pdf->SetSubject(get_string('export_title', 'block_custom_course_progress'));
-            $pdf->SetKeywords('');
-            $pdf->SetFont('helvetica', '', 10);
-            $pdf->SetFooterFont(array('helvetica', '', 10));
-            $pdf->SetFillColor(255, 255, 176);
-            $pdf->SetDrawColor(0, 0, 0);
-            $pdf->SetTextColor(0, 0, 0);
-            $pdf->setCellHeightRatio(0.8);
-            // Set margins.
-            $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-            $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
-            $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
-            // Get the CSS.
-            $styles = '<style>' . file_get_contents($CFG->dirroot . '/blocks/custom_course_progress/styles.css') . '</style>';
-
-            $pdf->AddPage();
-            $pdf->setJPEGQuality(100);
-
-            $x = 15;
-            $y = 20;
-            $w = 80;
-            $h = 40;
-
-            $pdf->SetXY(15, 145);
-            $pdf->writeHTMLCell(0, 0, 15, 100, '<h1>' . get_config('block_custom_course_progress', 'report_name') . '</h1><h1>' . $username . '</h1>', 0, 0, false, true, 'C', true);
-            $x = 65.5;
-            $y = 120;
-
-            $logo = $this->getReportlogo();
-            $ext = $this->getReportext();
-            if ($logo) {
-                $pdf->Image('@' . $logo, $x, $y, $w, $h, $ext, '', '', false, 300, '', false, false, 0, 'C', false, false);
-            }
-
-            $pdf->setPrintHeader(true);
-            $pdf->AddPage();
-            $pdf->setPrintFooter(true);
-
-            // Résumé cours.
-            $firstusedate = $this->get_first_use_date($userid, $courses);
-            if (!$firstusedate->timecreated) {
-                $firstusedate = $user->firstaccess;
-            }
-
-            $datenow = new \DateTime('now', new \DateTimeZone(\core_date::normalise_timezone($CFG->timezone)));
-            $html = "<h3>" . get_string('summary', 'block_custom_course_progress', $username) . "</h3>";
-            $html .= "<p><br><br></p>";
-            $html .= "<em><h4>$user->city</h4></em>";
-            $html .= "<p><br><br><br></p>";
-            $html .= "<p>Date du jour : " . $datenow->format('d/m/Y') . "</p>";
-            $html .= "<p>1<sup>er</sup> jour d'utilisation de la plateforme : " . date('d/m/Y', $firstusedate->timecreated) . "</p>";
-            $html .= "<p><br><br><br></p>";
-            $html .= "<p><br><br><br></p>";
-            $html .= "<h3>Les modules travaillés :</h3>";
-            $html .= "<p><br><br><br></p>";
-            foreach ($this->progresscourses as $course) {
-                if (isset($course) && $course->courseprogress > 0) {
-                    $html .= "<h4>$course->fullname</h4>";
-                    $html .= "<p>A réalisé " . $course->courseprogress . "%</p>";
-                    $validated = 0;
-                    $inprogress = 0;
-                    foreach ($course->sections as $section) {
-                        if ($section->progress > 99) {
-                            $validated++;
-                        } else if ($section->progress >= 0) {
-                            $inprogress++;
-                        }
-                    }
-                    $noprogress = count($course->noprogresssections);
-                    $total = count($course->sections) + $noprogress;
-                    $html .= "<p>Total de jalons : " . $total . "</p>";
-                    $html .= "<p>Jalons complétés : $validated</p>";
-                    $html .= "<p>Jalons commencés (mais encore incomplets) : $inprogress</p>";
-                    $html .= "<p>Jalons non travaillés : $noprogress</p>";
-                    $html .= "<p><br><br><br></p>";
-                }
-            }
-            $html .= "<p><br><br><br><br><br><br><br></p>";
-            $html .= "<h3>Les modules non travaillés :</h3>";
-            $html .= "<p><br><br><br></p>";
-            foreach ($this->idlecourses as $course) {
-                $html .= "<h4>$course->fullname</h4><br><br>";
-            }
-            $pdf->writeHTML($html);
-
-            // Détail cours.
-            $pdf->AddPage();
-            $pdf->writeHTML($styles . $OUTPUT->render_from_template('block_custom_course_progress/export', $content));
-            self::save_pdf($pdf, $combined);
-            $pdf->Close();
-
-            return $this->savePdfFile($this->context->id, $filename, $tmpdir);
-        }
-    }
-
-    /**
-     * Save the generated pdf file in a temporary directory.
-     *
-     * @param  mixed $contextid
-     * @param  mixed $filename
-     * @param  mixed $tmpdir
-     * @return void
-     */
-    private function savePdfFile($contextid, $filename, $tmpdir)
-    {
-        $fs = get_file_storage();
-
-        $fileinfo = array(
-            'contextid' => $contextid, // ID of context
-            'component' => 'block_custom_course_progress', // usually = table name
-            'filearea' => 'content', // usually = table name
-            'itemid' => 0, // usually = ID of row in table
-            'filepath' => '/', // any path beginning and ending in /
-            'filename' => $filename); // any filename
-
-        $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
-            $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
-
-        if ($file) {
-            // Delete the old file first
-            $file->delete();
-        }
-
-        $file = $fs->create_file_from_pathname($fileinfo, $tmpdir . '/' . $filename);
-        $path = '/' . $contextid . '/block_custom_course_progress/content/' . $file->get_itemid() . $file->get_filepath() . $filename;
-        return moodle_url::make_file_url('/pluginfile.php', $path);
     }
 
     /**
@@ -471,7 +353,7 @@ class custom_course_progress_lib
     }
 
     /**
-     * get_first_use_date
+     * Get the user's first day of use of the platform.
      *
      * @param  mixed $userid
      * @param  mixed $courses
@@ -488,5 +370,171 @@ class custom_course_progress_lib
                 ORDER BY {logstore_standard_log}.timecreated ASC LIMIT 1;";
 
         return $DB->get_record_sql($sql);
+    }
+
+    /**
+     * Get a hash that will be unique and can be used in a path name.
+     *
+     * @param int|\assign $assignment
+     * @param int $userid
+     * @param int $attemptnumber (-1 means latest attempt)
+     */
+    private static function hash($contextid, $userid)
+    {
+        return sha1($contextid . '_' . $userid);
+    }
+
+    /**
+     * Save the completed PDF to the given file.
+     *
+     * @param string $filename the filename for the PDF (including the full path)
+     */
+    private static function save_pdf($pdf, $filename)
+    {
+        $olddebug = error_reporting(0);
+        $pdf->Output($filename, 'F');
+        error_reporting($olddebug);
+    }
+
+    /**
+     * Make the export PDF file.
+     *
+     * @param  mixed $userid
+     * @param  mixed $filename
+     * @return void
+     */
+    public function make_export($userid, $filename)
+    {
+        global $CFG, $DB, $OUTPUT;
+
+        require_once $CFG->libdir . '/pdflib.php';
+
+        $tmpdir = \make_temp_directory('block_custom_course_progress/export/' . self::hash($this->context->id, $userid));
+        $combined = $tmpdir . '/' . $filename;
+
+        $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
+        $username = fullname($user);
+        $courses = enrol_get_all_users_courses($userid, true);
+        $exporttitle = get_config('block_custom_course_progress', 'report_name') 
+            ? get_config('block_custom_course_progress', 'report_name')
+            : get_string('export_title', 'block_custom_course_progress');
+        $logo = $this->getReportlogo();
+
+        $this->prepare_content($userid);
+        $content = new \block_custom_course_progress\output\export_content(
+            $username,
+            $this->progresscourses,
+            $this->idlecourses,
+            $this->showidlecourses
+        );
+
+        if (isset($content)) {
+            $pdf = new custompdf();
+            $pdf->SetCreator(PDF_CREATOR);
+            $pdf->SetAuthor(get_config('block_custom_course_progress', 'author') );
+            $pdf->setPrintHeader(false);
+            $pdf->setPrintFooter(false);
+            $pdf->setHeaderMargin(10);
+            $pdf->setHeaderFont(array('helvetica', '', 11));
+            // Set the PDF header using the custom class method.
+            $pdf->setHtmlHeader(get_string('export_title', 'block_custom_course_progress') . '<br>' . $username);
+
+            $pdf->SetTitle(get_string('export_title', 'block_custom_course_progress'));
+            $pdf->SetSubject(get_string('export_title', 'block_custom_course_progress'));
+            $pdf->SetKeywords('');
+            $pdf->SetFont('helvetica', '', 10);
+            $pdf->SetFooterFont(array('helvetica', '', 10));
+            $pdf->SetFillColor(255, 255, 176);
+            $pdf->SetDrawColor(0, 0, 0);
+            $pdf->SetTextColor(0, 0, 0);
+            $pdf->setCellHeightRatio(0.8);
+            // Set margins.
+            $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+            $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+            $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+            // Get the CSS.
+            $styles = '<style>' . file_get_contents($CFG->dirroot . '/blocks/custom_course_progress/styles.css') . '</style>';
+
+            $pdf->AddPage();
+            $pdf->setJPEGQuality(100);
+
+            $x = 15;
+            $y = 20;
+            $w = 80;
+            $h = 40;
+
+            $ext = $this->getReportext();
+            if ($logo) {
+                $pdf->Image('@' . $logo, $x, $y, $w, $h, $ext, '', '', false, 300, '', false, false, 0, 'C', false, false);
+            }
+
+            $pdf->SetXY(15, 145);
+            $pdf->writeHTMLCell(0, 0, 15, 100, '<h1>' . $exporttitle . '</h1><h1>' . $username . '</h1>', 0, 0, false, true, 'C', true);
+            $x = 65.5;
+            $y = 120;
+
+            $pdf->setPrintHeader(true);
+            $pdf->AddPage();
+            $pdf->setPrintFooter(true);
+
+            // Résumé cours.
+            $firstusedate = $this->get_first_use_date($userid, $courses);
+            if (!$firstusedate->timecreated) {
+                $firstusedate = $user->firstaccess;
+            }
+
+            $datenow = new \DateTime('now', new \DateTimeZone(\core_date::normalise_timezone($CFG->timezone)));
+
+            $data = [
+                'username'        => $username,
+                'usercity'        => $user->city,
+                'datenow'         => $datenow->format('d/m/Y'),
+                'firstday'        => date('d/m/Y', $firstusedate->timecreated),
+                'showidlecourses' => $this->showidlecourses,
+                'progresscourses' => $this->progresscourses,
+                'idlecourses'     => $this->idlecourses
+            ];
+
+            $html = $OUTPUT->render_from_template('block_custom_course_progress/export', $data);
+
+            $pdf->writeHTML($html . $styles);
+            self::save_pdf($pdf, $combined);
+            $pdf->Close();
+
+            return $this->savePdfFile($this->context->id, $filename, $tmpdir);
+        }
+    }
+
+    /**
+     * Save the generated pdf file in a temporary directory.
+     *
+     * @param  mixed $contextid
+     * @param  mixed $filename
+     * @param  mixed $tmpdir
+     * @return void
+     */
+    private function savePdfFile($contextid, $filename, $tmpdir)
+    {
+        $fs = get_file_storage();
+
+        $fileinfo = array(
+            'contextid' => $contextid, // ID of context
+            'component' => 'block_custom_course_progress', // usually = table name
+            'filearea' => 'content', // usually = table name
+            'itemid' => 0, // usually = ID of row in table
+            'filepath' => '/', // any path beginning and ending in /
+            'filename' => $filename); // any filename
+
+        $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
+            $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+
+        if ($file) {
+            // Delete the old file first
+            $file->delete();
+        }
+
+        $file = $fs->create_file_from_pathname($fileinfo, $tmpdir . '/' . $filename);
+        $path = '/' . $contextid . '/block_custom_course_progress/content/' . $file->get_itemid() . $file->get_filepath() . $filename;
+        return moodle_url::make_file_url('/pluginfile.php', $path);
     }
 }

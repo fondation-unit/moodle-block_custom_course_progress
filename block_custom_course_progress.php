@@ -72,9 +72,11 @@ class block_custom_course_progress extends block_base
         if ($this->content !== null) {
             return $this->content;
         }
-
+        
+        $config = get_config('block_custom_course_progress');
+        $showidlecourses = boolval($config->showidlecourses);
         $context = context_system::instance();
-        $lib = new custom_course_progress_lib($context);
+        $lib = new custom_course_progress_lib($context, $showidlecourses);
 
         $this->content = new stdClass();
         $lib->prepare_content($USER->id);
