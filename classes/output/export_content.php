@@ -33,17 +33,19 @@ use moodle_url;
 
 class export_content implements renderable, templatable {
 
-    public $username;
-    public $progresscourses;
-    public $idlecourses;
+    private $username;
+    private $progresscourses;
+    private $idlecourses;
+    private $showidlecourses;
 
     /**
      * Constructor.
      */
-    public function __construct($username, $progresscourses, $idlecourses) {
+    public function __construct($username, $progresscourses, $idlecourses, $showidlecourses) {
         $this->username = $username;
         $this->progresscourses = $progresscourses;
         $this->idlecourses = $idlecourses;
+        $this->showidlecourses = $showidlecourses;
     }
 
     /**
@@ -56,7 +58,7 @@ class export_content implements renderable, templatable {
         $data = new stdClass(array(
             'username' => $this->username,
             'progresscourses' => $this->progresscourses,
-            'idlecourses' => $this->idlecourses,
+            'idlecourses' => $this->showidlecourses ? $this->idlecourses : array(),
             'pluginbaseurl' => (new moodle_url('/blocks/custom_course_progress'))->out(false),
         ));
 

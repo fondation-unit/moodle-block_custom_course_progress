@@ -20,11 +20,15 @@
   @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 }}
 <div class="custom_course_progress_body">
-    {{#export}}
-        <header class="pull-right">
-            <a href="{{{ config.wwwroot }}}/blocks/custom_course_progress/export.php" class="btn btn-primary pt-1 pb-1"><i class="fa fa-download"></i></a>
-        </header>
-    {{/export}}
+    {{#candownload}}
+        {{#export}}
+            <header class="pull-right">
+                <a href="{{{ config.wwwroot }}}/blocks/custom_course_progress/export.php" class="btn btn-primary pt-1 pb-1">
+                    <i class="fa fa-download"></i>
+                </a>
+            </header>
+        {{/export}}
+    {{/candownload}}
     {{> block_custom_course_progress/progress_courses }}
     {{> block_custom_course_progress/idle_courses }}
 </div>

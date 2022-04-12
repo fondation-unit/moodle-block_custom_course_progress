@@ -19,67 +19,36 @@
   @author     Pierre Duverneix
   @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 }}
-<div class="custom_course_progress_export">
-    <table class="custom_course_progress-table" cellspacing="0" cellpadding="0">
-        {{#progresscourses}}
-            <tr style="page-break-inside:avoid;">
-                <td>
-                    <table>
-                        <tr>
-                            <th>
-                                <h4 class="custom-progress-course">{{{fullname}}}</h4>
-                            </th>
-                        </tr>
-                        <tr><td></td></tr>
-                    </table>
-                    <table style="background-color:#cfdae4;" width="100%">
-                        <tr>
-                            <td width="{{{courseprogress}}}%" class="custom-progress-bar"></td>
-                            <td width="{{{courseprogressdiff}}}%"></td>
-                        </tr>
-                    </table>
-                    <table>
-                        <tr>
-                            <td width="100%">
-                                <br><br><strong>A réalisé {{{courseprogress}}}% de la totalité du cours</strong><br><br>
-                            </td>
-                        </tr>
-                    </table>
-                    <table>
-                        {{#sections}}
-                            <tr><td></td></tr>
-                            <tr>
-                                <td><strong>{{{name}}}</strong> ({{{progress}}}%)</td>
-                            </tr>
-                            <tr><td></td></tr>
-                            <tr>
-                                <td>Activités achevées : {{{modcompleted}}}/{{{modcount}}}</td>
-                            </tr>
-                            <tr><td><br></td></tr>
-                            {{#hasgrades}}
-                                <tr>
-                                    <td>Détail :
-                                        <ul class="no-mg">
-                                        {{#modules}}
-                                            {{#gradeitems}}
-                                                <li>{{{name}}} : {{{finalgrade}}}/{{{grademax}}}</li>
-                                            {{/gradeitems}}
-                                        {{/modules}}
-                                        </ul>
-                                    </td>
-                                </tr>
-                            {{/hasgrades}}
-                            <tr><td><br></td></tr>
-                        {{/sections}}
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td class="custom-sep"></td>
-            </tr>
-        {{/progresscourses}}
-        <tr><td></td></tr>
-        <tr><td></td></tr>
-        <tr><td></td></tr>
-    </table>
-</div>
+
+<h3>{{#str}} summary, block_custom_course_progress, {{username}} {{/str}}</h3>
+<em><h4>{{usercity}}</h4></em>
+
+<p>
+  {{#str}} export:dateoftheday, block_custom_course_progress {{/str}} {{datenow}}
+</p>
+
+<p>
+  {{#str}} export:first_day, block_custom_course_progress {{/str}} {{firstday}}
+</p>
+
+<p><br><br><br><br><br><br></p>
+<h3>{{#str}} export:worked_courses, block_custom_course_progress {{/str}}</h3>
+<p><br><br><br><br><br><br></p>
+
+{{#progresscourses}}
+  <h4>{{fullname}}</h4>
+  <p>{{#str}} export:achieved, block_custom_course_progress {{/str}} {{courseprogress}}%</p>
+  <p>{{#str}} export:total_sections, block_custom_course_progress {{/str}} {{total}}</p>
+  <p>{{#str}} export:completed_sections, block_custom_course_progress {{/str}} {{validated}}</p>
+  <p>{{#str}} export:inprogress_sections, block_custom_course_progress {{/str}} {{inprogress}}</p>
+  <p>{{#str}} export:untouched_sections, block_custom_course_progress {{/str}} {{noprogress}}</p>
+  <p><br><br><br><br><br><br></p>
+{{/progresscourses}}
+
+{{#showidlecourses}}
+  <h3>{{#str}} export:untouched_courses, block_custom_course_progress {{/str}}</h3>
+  <p><br><br><br><br><br><br></p>
+  {{#idlecourses}}
+    <h4>{{fullname}}</h4>
+  {{/idlecourses}}
+{{/showidlecourses}}

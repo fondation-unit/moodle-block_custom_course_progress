@@ -16,7 +16,6 @@
 
 require_once dirname(__FILE__) . '/../../config.php';
 require_once dirname(__FILE__) . '/locallib.php';
-require_once $CFG->libdir . '/pdflib.php';
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -24,7 +23,7 @@ use block_custom_course_progress\custom_course_progress_lib;
 
 require_login();
 
-global $PAGE, $CFG, $USER;
+global $CFG, $PAGE, $USER;
 
 $personalcontext = context_user::instance($USER->id);
 $PAGE->set_url(new moodle_url('/blocks/custom_course_progress/export.php'));
@@ -32,7 +31,13 @@ $PAGE->set_context($personalcontext);
 
 $context = context_system::instance();
 $config = get_config('block_custom_course_progress');
-$lib = new custom_course_progress_lib($context);
+$showidlecourses = $config->showidlecourses;
+$lib = new custom_course_progress_lib($context, $showidlecourses);
+
+// The user must be allowed to download the report.
+if (!$config->user_can_download_report || $config->user_can_download_report < 1) {
+    redirect($CFG->wwwroot .'/my/');
+}
 
 $fs = get_file_storage();
 
@@ -54,13 +59,15 @@ if ($file) {
     $path = '/' . $fileinfo['contextid'] . '/' . $fileinfo['component'] . '/' . $fileinfo['filearea'] . '/' . $fileinfo['itemid'] . $fileinfo['filename'];
     $logopath = moodle_url::make_file_url('/pluginfile.php', $path);
     $reportlogo = $file->get_content();
+
     $lib->setReportlogo($reportlogo);
+
     if (strpos($fileinfo['filename'], '.') !== false) {
         $fileextension = substr($fileinfo['filename'], strrpos($fileinfo['filename'], '.') + 1);
         $lib->setReportext($fileextension);
     }
 } else {
-    // file doesn't exist - do something
+    throw new Error('Unable to find file for block_custom_course_progress');
 }
 
 $url = $lib->make_export($USER->id, 'export_' . $USER->id . '.pdf');

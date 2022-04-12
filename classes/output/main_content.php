@@ -35,18 +35,20 @@ use templatable;
 class main_content implements renderable, templatable
 {
 
-    public $progresscourses;
-    public $idlecourses;
-    public $context;
+    private $progresscourses;
+    private $idlecourses;
+    private $context;
+    private $showidlecourses;
 
     /**
      * Constructor.
      */
-    public function __construct($progresscourses, $idlecourses, $context)
+    public function __construct($progresscourses, $idlecourses, $context, $showidlecourses)
     {
         $this->progresscourses = $progresscourses;
         $this->idlecourses = $idlecourses;
         $this->context = $context;
+        $this->showidlecourses = $showidlecourses;
     }
 
     /**
@@ -57,25 +59,12 @@ class main_content implements renderable, templatable
      */
     public function export_for_template(renderer_base $output)
     {
-        $data = new stdClass();
-        $export = false;
-
-        if ($this->progresscourses != null) {
-            $export = true;
-        }
-
-        $noitemsimgurl = $output->image_url('items', 'block_recentlyaccesseditems')->out();
-
-        // echo "<pre>";
-        // print_r($this->progresscourses[0]->courseprogress);
-        // print_r($this->progresscourses[0]->sections[0]->progress);
-        // echo "</pre>";
-
         $data = array(
             'progresscourses' => $this->progresscourses,
-            'idlecourses' => $this->idlecourses,
-            'export' => $export,
-            'noitemsimgurl' => $noitemsimgurl,
+            'idlecourses' => $this->showidlecourses ? $this->idlecourses : array(),
+            'candownload' => get_config('block_custom_course_progress', 'user_can_download_report'),
+            'export' => $this->progresscourses != null ? true : false,
+            'noitemsimgurl' => $output->image_url('items', 'block_recentlyaccesseditems')->out(),
             'pluginbaseurl' => (new moodle_url('/blocks/custom_course_progress'))->out(false),
         );
 
