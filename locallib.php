@@ -231,10 +231,41 @@ class custom_course_progress_lib
         usort($progresscourses, "self::cmp");
         usort($idlecourses, "self::cmp");
 
-        $this->progresscourses = $progresscourses;
+        $this->progresscourses = self::progresscourses_export($progresscourses);
         $this->idlecourses = $idlecourses;
 
         return $this;
+    }
+    
+    /**
+     * Prepare the progresscourses array for export
+     *
+     * @param  mixed $progresscourses
+     * @return void
+     */
+    private static function progresscourses_export($progresscourses) 
+    {
+        foreach ($progresscourses as $course) {
+            if (isset($course) && isset($course->courseprogress) && $course->courseprogress > 0) {
+                $validated = 0;
+                $inprogress = 0;
+                foreach ($course->sections as $section) {
+                    if ($section->progress > 99) {
+                        $validated++;
+                    } else if ($section->progress >= 0) {
+                        $inprogress++;
+                    }
+                }
+                $noprogress = count($course->noprogresssections);
+                $total = count($course->sections) + $noprogress;
+
+                $course->validated = $validated;
+                $course->inprogress = $inprogress;
+                $course->noprogress = $noprogress;
+                $course->total = $total;
+            }
+        }
+        return $progresscourses;
     }
 
     /**
@@ -453,42 +484,18 @@ class custom_course_progress_lib
             }
 
             $datenow = new \DateTime('now', new \DateTimeZone(\core_date::normalise_timezone($CFG->timezone)));
-            $sep = "<p><br><br><br><br><br><br></p>";
-            $html = "<h3>" . get_string('summary', 'block_custom_course_progress', $username) . "</h3>" . $sep;
-            $html .= "<em><h4>$user->city</h4></em>" . $sep;
-            $html .= "<p>" . get_string('export:dateoftheday', 'block_custom_course_progress') . $datenow->format('d/m/Y') . "</p>";
-            $html .= "<p>" . get_string('export:first_day', 'block_custom_course_progress') . date('d/m/Y', $firstusedate->timecreated) . "</p>" . $sep;
-            $html .= "<h3>" . get_string('export:worked_courses', 'block_custom_course_progress') . "</h3>" . $sep;
 
-            foreach ($this->progresscourses as $course) {
-                if (isset($course) && isset($course->courseprogress) && $course->courseprogress > 0) {
-                    $html .= "<h4>$course->fullname</h4>";
-                    $html .= "<p>" . get_string('export:achieved', 'block_custom_course_progress') . " " . $course->courseprogress . "%</p>";
-                    $validated = 0;
-                    $inprogress = 0;
-                    foreach ($course->sections as $section) {
-                        if ($section->progress > 99) {
-                            $validated++;
-                        } else if ($section->progress >= 0) {
-                            $inprogress++;
-                        }
-                    }
-                    $noprogress = count($course->noprogresssections);
-                    $total = count($course->sections) + $noprogress;
-                    $html .= "<p>" . get_string('export:total_sections', 'block_custom_course_progress') . $total . "</p>";
-                    $html .= "<p>" . get_string('export:completed_sections', 'block_custom_course_progress') . $validated . "</p>";
-                    $html .= "<p>" . get_string('export:inprogress_sections', 'block_custom_course_progress') . $inprogress . "</p>";
-                    $html .= "<p>" . get_string('export:untouched_sections', 'block_custom_course_progress') . $noprogress . "</p>";
-                    $html .= $sep;
-                }
-            }
+            $data = [
+                'username'        => $username,
+                'usercity'        => $user->city,
+                'datenow'         => $datenow->format('d/m/Y'),
+                'firstday'        => date('d/m/Y', $firstusedate->timecreated),
+                'showidlecourses' => $this->showidlecourses,
+                'progresscourses' => $this->progresscourses,
+                'idlecourses'     => $this->idlecourses
+            ];
 
-            if ($this->showidlecourses) {
-                $html .= $sep . "<h3>" . get_string('export:untouched_courses', 'block_custom_course_progress') . "</h3>" . $sep;
-                foreach ($this->idlecourses as $course) {
-                    $html .= "<h4>$course->fullname</h4><br><br>";
-                }
-            }
+            $html = $OUTPUT->render_from_template('block_custom_course_progress/export', $data);
 
             $pdf->writeHTML($html . $styles);
             self::save_pdf($pdf, $combined);
