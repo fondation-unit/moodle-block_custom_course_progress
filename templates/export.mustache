@@ -15,7 +15,7 @@
   custom_course_progress block.
   @package    block
   @subpackage custom_course_progress
-  @copyright  &copy; 2021 Pierre Duverneix.
+  @copyright  &copy; 2022 Pierre Duverneix.
   @author     Pierre Duverneix
   @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 }}
@@ -31,23 +31,26 @@
   {{#str}} export:first_day, block_custom_course_progress {{/str}} {{firstday}}
 </p>
 
-<p><br><br><br><br><br><br></p>
+{{{ separator }}}
+{{{ separator }}}
 <h3>{{#str}} export:worked_courses, block_custom_course_progress {{/str}}</h3>
-<p><br><br><br><br><br><br></p>
+{{{ separator }}}
 
 {{#progresscourses}}
+  {{{ separator }}}
   <h4>{{fullname}}</h4>
   <p>{{#str}} export:achieved, block_custom_course_progress {{/str}} {{courseprogress}}%</p>
   <p>{{#str}} export:total_sections, block_custom_course_progress {{/str}} {{total}}</p>
   <p>{{#str}} export:completed_sections, block_custom_course_progress {{/str}} {{validated}}</p>
   <p>{{#str}} export:inprogress_sections, block_custom_course_progress {{/str}} {{inprogress}}</p>
   <p>{{#str}} export:untouched_sections, block_custom_course_progress {{/str}} {{noprogress}}</p>
-  <p><br><br><br><br><br><br></p>
+  {{{ separator }}}
 {{/progresscourses}}
 
 {{#showidlecourses}}
+  {{{ separator }}}
   <h3>{{#str}} export:untouched_courses, block_custom_course_progress {{/str}}</h3>
-  <p><br><br><br><br><br><br></p>
+  {{{ separator }}}
   {{#idlecourses}}
     <h4>{{fullname}}</h4>
   {{/idlecourses}}
