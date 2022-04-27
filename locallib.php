@@ -163,10 +163,11 @@ class custom_course_progress_lib
                 $format = \course_get_format($course->id);
                 $modinfo = \get_fast_modinfo($course->id);
                 $mods = $modinfo->get_cms();
-                $count = count($mods);
-                if (!$count) {
+
+                if (!count($mods)) {
                     return null;
                 }
+
                 $completed = 0;
                 $hascourseprogress = false;
                 $progress = \core_completion\progress::get_course_progress_percentage($course);
@@ -176,18 +177,13 @@ class custom_course_progress_lib
                     $hasprogress = false;
 
                     foreach ($mods as $module) {
-                        $copymodule = new \stdClass();
                         if ($module->available == 1 && $module->section == $section->id) {
+                            $gradeitems = null;
                             $data = $completion->get_data($module, true, $userid);
                             $completed += $data->completionstate == COMPLETION_INCOMPLETE ? 0 : 1;
 
-                            $copymodule->id = $module->id;
-                            $copymodule->name = $module->name;
-                            $copymodule->modname = $module->modname;
-
                             if (in_array($module->modname, $trackedmodules)) {
                                 $gradeitems = $this->get_gradeitems($userid, $course->id, $module->instance, $module->modname);
-                                $copymodule->gradeitems = $gradeitems;
                                 if (isset($gradeitems->id)) {
                                     $gradeitems->finalgrade = $gradeitems->finalgrade + 0;
                                     $trackedsection->hasgrades = true;
@@ -202,7 +198,12 @@ class custom_course_progress_lib
                             if ($data->completionstate > 0) {
                                 $hasprogress = true;
                                 $hascourseprogress = true;
-                                $trackedsection->modules[] = $copymodule;
+                                $trackedsection->modules[] = (object) array(
+                                    'id' => $module->id,
+                                    'name' => $module->name,
+                                    'module' => $module->modname,
+                                    'gradeitems' => $gradeitems
+                                );
                                 $trackedsection->modcompleted = $trackedsection->modcompleted + 1;
                             }
                         }
@@ -490,6 +491,7 @@ class custom_course_progress_lib
                 'usercity'        => $user->city,
                 'datenow'         => $datenow->format('d/m/Y'),
                 'firstday'        => date('d/m/Y', $firstusedate->timecreated),
+                'separator'       => '<p><br><br><br><br><br><br></p>',
                 'showidlecourses' => $this->showidlecourses,
                 'progresscourses' => $this->progresscourses,
                 'idlecourses'     => $this->idlecourses
