@@ -23,20 +23,20 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-// The report's name
+// Name of the report
 $settings->add(new admin_setting_configtext(
     'block_custom_course_progress/report_name',
     get_string('settings:report_name', 'block_custom_course_progress'),
     get_string('settings:report_name_desc', 'block_custom_course_progress'), ''));
 
-// The repot's image
+// Image of the report
 $opts = array('accepted_types' => array('.png', '.jpg', '.gif', '.webp', '.tiff', '.svg'));
 $settings->add(new admin_setting_configstoredfile(
     'block_custom_course_progress/reportlogo',
     get_string('settings:reportlogo_name', 'block_custom_course_progress'),
     get_string('settings:reportlogo_desc', 'block_custom_course_progress'), 'reportlogo', 0, $opts));
 
-// Report file's author
+// Author of the report file
 $settings->add(new admin_setting_configtext(
     'block_custom_course_progress/author',
     get_string('settings:author', 'block_custom_course_progress'),
