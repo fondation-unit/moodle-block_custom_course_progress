@@ -23,32 +23,38 @@
 
 defined('MOODLE_INTERNAL') || die;
 
+// The report's name
 $settings->add(new admin_setting_configtext(
     'block_custom_course_progress/report_name',
     get_string('settings:report_name', 'block_custom_course_progress'),
     get_string('settings:report_name_desc', 'block_custom_course_progress'), ''));
 
+// The repot's image
 $opts = array('accepted_types' => array('.png', '.jpg', '.gif', '.webp', '.tiff', '.svg'));
 $settings->add(new admin_setting_configstoredfile(
     'block_custom_course_progress/reportlogo',
     get_string('settings:reportlogo_name', 'block_custom_course_progress'),
     get_string('settings:reportlogo_desc', 'block_custom_course_progress'), 'reportlogo', 0, $opts));
 
+// Report file's author
 $settings->add(new admin_setting_configtext(
     'block_custom_course_progress/author',
     get_string('settings:author', 'block_custom_course_progress'),
     get_string('settings:author_desc', 'block_custom_course_progress'), ''));
 
+// User can download the report
 $settings->add(new admin_setting_configcheckbox(
     'block_custom_course_progress/user_can_download_report',
     get_string('settings:user_can_download_report', 'block_custom_course_progress'),
     get_string('settings:user_can_download_report_desc', 'block_custom_course_progress'), 0));
 
+// Show idle courses
 $settings->add(new admin_setting_configcheckbox(
     'block_custom_course_progress/showidlecourses',
     get_string('settings:showidlecourses', 'block_custom_course_progress'),
     get_string('settings:showidlecourses_desc', 'block_custom_course_progress'), 1));
 
+// Trackedmodules
 $choices = array();
 $choices['none'] = get_string('none', 'core');
 $choices['assign'] = get_string('pluginname', 'mod_assign');
