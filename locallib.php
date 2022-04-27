@@ -439,7 +439,6 @@ class custom_course_progress_lib
             $pdf->setHeaderFont(array('helvetica', '', 11));
             // Set the PDF header using the custom class method.
             $pdf->setHtmlHeader(get_string('export_title', 'block_custom_course_progress') . '<br>' . $username);
-
             $pdf->SetTitle(get_string('export_title', 'block_custom_course_progress'));
             $pdf->SetSubject(get_string('export_title', 'block_custom_course_progress'));
             $pdf->SetKeywords('');
